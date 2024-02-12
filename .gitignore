@@ -1,0 +1,35 @@
+server/node_modules
+client/node_modules
+.env
+
+client/.pnp
+client/.pnp.js
+client/.yarn/install-state.gz
+
+# testing
+client/coverage
+# next.js
+client/.next/
+client/out/
+
+# production
+client/build
+
+# misc
+client/.DS_Store
+client/*.pem
+
+# debug
+client/npm-debug.log*
+client/yarn-debug.log*
+client/yarn-error.log*
+
+# local env files
+client/.env*.local
+
+# vercel
+client/.vercel
+
+# typescript
+client/*.tsbuildinfo
+client/next-env.d.ts
