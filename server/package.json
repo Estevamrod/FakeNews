@@ -5,8 +5,8 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js",
-    "webRun": "cd WebScrapping && flask run --reload"
+    "back-javascript": "nodemon server.js",
+    "back-python": "cd WebScrapping && flask run --reload"
   },
   "keywords": [],
   "author": "",
