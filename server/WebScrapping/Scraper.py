@@ -3,6 +3,7 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import requests
 from bs4 import BeautifulSoup
 import spacy
+import json
 
 class Scraper:
     def __init__(self, newstoSearch):
@@ -16,103 +17,126 @@ class Scraper:
             #G1
             'https://search.folha.uol.com.br/?site=todos&',
             # Folha de São Paulo
-            'https://www.gazetadopovo.com.br/busca/?' ## Utiliza q
+            'https://www.gazetadopovo.com.br/busca/?', ## Utiliza q
             # Gazeta do Povo
+            'https://cse.google.com/cse/element/v1?rsz=filtered_cse&num=10&hl=pt-PT&source=gcsc&gss=.com&cselibv=8435450f13508ca1&cx=004590593083191455447%3A5j_p3qfagic&safe=off&cse_tok=AB-tC_6pEVBRQzm5COyQ25W5ni_9%3A1709029191361&sort=&exp=cc%2Cdtsq-3&fexp=72497452&callback=google.search.cse.api2009&'
         ]
         try:
             dadosG1 = {}
             dadosFolha = {}
             dadosGazeta = {}
+            dadosMetropoles = {}
             ComInfo = {}
 
             for url in urls:
-                rs = requests.get(url, params={'q':self.newstoSearch.replace(" ", "+")})
-                print(f"status code: {rs.status_code}")
-                htmlcontent = rs.content
-                i = 0 
+                if url != urls[3]:    
+                    rs = requests.get(url, params={'q':self.newstoSearch.replace(" ", "+")})
+                    print(f"status code: {rs.status_code}")
+                    htmlcontent = rs.content
+                    i = 0 
 
-                print(f'Actual url in request: {url}')
-                soup = BeautifulSoup(htmlcontent, 'html.parser')
-                ##inicio g1
-                for gTitulo in soup.find_all(class_='widget--info__title product-color'):
-                    # print(i.get_text())
-                    dadosG1[i] = {
-                        'site':url, 
-                        'dados': {
-                            'titulo': gTitulo.get_text().strip()
-                        }
-                        }
-                    i += 1
-                i = 0
-                for gSubtitulo in soup.find_all(class_='widget--info__description'):
-                    dadosG1[i]['dados']['subtitulo'] = gSubtitulo.get_text().strip()
-                    i += 1
-                
-                i = 0
-                for gLink in soup.find_all(class_='widget--info__text-container'):
-                    # print(gLink.find('a').get('href'))
-                    dadosG1[i]['dados']['Link'] = gLink.find('a').get('href')
-                    i += 1
-                ##fim g1
-                    
-                ##inicio folha
-                i = 0
-                for fTitulo in soup.find_all(class_='c-headline__title'):
-                    # print(fTitulo.get_text().strip())
-                    dadosFolha[i] = {
-                        'site':url,
-                        'dados': {
-                            'titulo': fTitulo.get_text().strip()
-                        }
-                    }
-                    i += 1
+                    print(f'Actual url in request: {url}')
+                    soup = BeautifulSoup(htmlcontent, 'html.parser')
+                    ##inicio g1
+                    for gTitulo in soup.find_all(class_='widget--info__title product-color'):
+                        # print(i.get_text())
+                        dadosG1[i] = {
+                            'site':url, 
+                            'dados': {
+                                'titulo': gTitulo.get_text().strip()
+                            }
+                            }
+                        i += 1
+                    i = 0
+                    for gSubtitulo in soup.find_all(class_='widget--info__description'):
+                        dadosG1[i]['dados']['subtitulo'] = gSubtitulo.get_text().strip()
+                        i += 1
 
-                i = 0
-                for fSubtitulo in soup.find_all(class_='c-headline__standfirst'):
-                    # print(fSubtitulo.get_text().strip().removeprefix('O jornal Folha de S.Paulo é publicado pela Empresa Folha da Manhã S.A. CNPJ: 60.579.703/0001-48'))
-                    if fSubtitulo.get_text().strip() != 'O jornal Folha de S.Paulo é publicado pela Empresa Folha da Manhã S.A. CNPJ: 60.579.703/0001-48':
-                        dadosFolha[i]['dados']['subtitulo'] = fSubtitulo.get_text().strip()
-                    i += 1    
-                
-                i = 0
-                for fLink in soup.find_all(class_='c-headline__content'):
-                    # print(gLink.find('a').get('href'))
-                    dadosFolha[i]['dados']['Link'] = fLink.find('a').get('href')
-                    i += 1
+                    i = 0
+                    for gLink in soup.find_all(class_='widget--info__text-container'):
+                        # print(gLink.find('a').get('href'))
+                        dadosG1[i]['dados']['Link'] = gLink.find('a').get('href')
+                        i += 1
+                    ##fim g1
 
-                ## Fim Folha
-                ## Gazeta do Povo
-                i = 0
-                for gpTitulo in soup.find_all(class_='post-title'):
-                    # print(gpTitulo.get_text().strip())
-                    dadosGazeta[i] = {
-                        'site': url,
-                        'dados': {
-                            'titulo': gpTitulo.get_text().strip()
+                    ##inicio folha
+                    i = 0
+                    for fTitulo in soup.find_all(class_='c-headline__title'):
+                        # print(fTitulo.get_text().strip())
+                        dadosFolha[i] = {
+                            'site':url,
+                            'dados': {
+                                'titulo': fTitulo.get_text().strip()
+                            }
                         }
-                    }
-                    i += 1
+                        i += 1
+
+                    i = 0
+                    for fSubtitulo in soup.find_all(class_='c-headline__standfirst'):
+                        # print(fSubtitulo.get_text().strip().removeprefix('O jornal Folha de S.Paulo é publicado pela Empresa Folha da Manhã S.A. CNPJ: 60.579.703/0001-48'))
+                        if fSubtitulo.get_text().strip() != 'O jornal Folha de S.Paulo é publicado pela Empresa Folha da Manhã S.A. CNPJ: 60.579.703/0001-48':
+                            dadosFolha[i]['dados']['subtitulo'] = fSubtitulo.get_text().strip()
+                        i += 1    
+
+                    i = 0
+                    for fLink in soup.find_all(class_='c-headline__content'):
+                        # print(gLink.find('a').get('href'))
+                        dadosFolha[i]['dados']['Link'] = fLink.find('a').get('href')
+                        i += 1
+
+                    ## Fim Folha
+                    ## Gazeta do Povo
+                    i = 0
+                    for gpTitulo in soup.find_all(class_='post-title'):
+                        # print(gpTitulo.get_text().strip())
+                        dadosGazeta[i] = {
+                            'site': url,
+                            'dados': {
+                                'titulo': gpTitulo.get_text().strip()
+                            }
+                        }
+                        i += 1
+
+                    i = 0
+                    for gpSubtitulo in soup.find_all(class_='post-summary'):
+                        # print(gpSubtitulo.get_text().strip())
+                        dadosGazeta[i]['dados']['subtitulo'] = gpSubtitulo.get_text().strip()
+                        i += 1
+
+                    i = 0
+                    for gpLink in soup.find_all(class_='post-url'):
+                        # print(gpLink.get('href'))
+                        dadosGazeta[i]['dados']['Link'] = gpLink.get('href')
+                        i += 1
+                    ## Fim Gazeta
+                else:
+                    try:
+                        rq = requests.get(url, params={'q': self.newstoSearch.replace(" ", "+")})
+                        print(f"status_code: {rq.status_code}")
+                        htmlText = rq.text.split('/*O_o*/')[1].split('google.search.cse.api2009(')[1].split(');')[0]
+                        jsonContent = json.loads(htmlText)
+
+                        i = 0
+                        for mainInfo in jsonContent['results']:
+                            dadosMetropoles[i] = {
+                                'site': url,
+                                'dados': {
+                                    'titulo': mainInfo['titleNoFormatting'].split(' ...')[0],
+                                    'Link': mainInfo['url']
+                                }
+                            }
+                            i += 1
+                    except Exception as e:
+                        print(e)
                 
-                i = 0
-                for gpSubtitulo in soup.find_all(class_='post-summary'):
-                    # print(gpSubtitulo.get_text().strip())
-                    dadosGazeta[i]['dados']['subtitulo'] = gpSubtitulo.get_text().strip()
-                    i += 1
-                
-                i = 0
-                for gpLink in soup.find_all(class_='post-url'):
-                    # print(gpLink.get('href'))
-                    dadosGazeta[i]['dados']['Link'] = gpLink.get('href')
-                    i += 1
-                ## Fim Gazeta
-                    
-                if dadosG1 != {} and dadosFolha != {} and dadosGazeta != {}:
-                    ComInfo = {
-                        'Folha_de_sao_paulo':dadosFolha,
-                        'G1': dadosG1,
-                        'Gazeta_do_povo': dadosGazeta
-                    }
-                    return ComInfo
+                if dadosG1 != {} and dadosFolha != {} and dadosGazeta != {} and dadosMetropoles:
+                        ComInfo = {
+                            'Folha_de_sao_paulo':dadosFolha,
+                            'G1': dadosG1,
+                            'Gazeta_do_povo': dadosGazeta,
+                            'Metropoles': dadosMetropoles
+                        }
+                        return ComInfo
         except Exception as e:
             print(e)
 
@@ -120,6 +144,7 @@ class Scraper:
         Similaridade = {}
         g1Similar = {}
         gazetaSimilar = {}
+        metropolesSimilar = {}
         folhaSimilar = {}
 
         try:
@@ -199,11 +224,24 @@ class Scraper:
                 # print(gazetaSimilar.get(max(gazetaSimilar, key=lambda k:gazetaSimilar[k]['SimilaridadeTitulo'])))
                 # print(g1Similar.get(max(g1Similar, key=lambda k:g1Similar[k]['SimilaridadeTitulo'])))
 
-            if gazetaSimilar != {} and folhaSimilar != {} and g1Similar != {}:
+            i = 0
+            for metroTitulo in rsData['Metropoles']:
+                s2 = nlp(rsData['Metropoles'][metroTitulo]['dados']['titulo'])
+
+                metropolesSimilar[i] = {
+                    'SimilaridadeTitulo': f"{round(s1.similarity(s2)*100, 2)}%",
+                    'titulo': rsData['Metropoles'][metroTitulo]['dados']['titulo'],
+                    'Link': rsData['Metropoles'][metroTitulo]['dados']['Link']
+                }
+                i += 1
+
+
+            if gazetaSimilar != {} and folhaSimilar != {} and g1Similar != {} and metropolesSimilar != {}:
                 Similaridade = {
                     'Folha_de_sao_paulo_similaridade': folhaSimilar.get(max(folhaSimilar, key=lambda k:folhaSimilar[k]['SimilaridadeTitulo'])), ## Essa função de max, analisa todo o ditc(hashmap) e nos tras o maior valor que aquele dict possui
                     'Gazeta_do_povo_similaridade': gazetaSimilar.get(max(gazetaSimilar, key=lambda k:gazetaSimilar[k]['SimilaridadeTitulo'])),
-                    'G1_similaridade': g1Similar.get(max(g1Similar, key=lambda k:g1Similar[k]['SimilaridadeTitulo']))
+                    'G1_similaridade': g1Similar.get(max(g1Similar, key=lambda k:g1Similar[k]['SimilaridadeTitulo'])),
+                    'Metropoles_similaridade': metropolesSimilar.get(max(metropolesSimilar, key=lambda k: metropolesSimilar[k]['SimilaridadeTitulo']))
                 }
                 return Similaridade
         except Exception as e:
@@ -227,10 +265,16 @@ class Scraper:
             ## G1
             s3 = rq[0]['G1']['Corpus']
             g1CorpusSentiment = SentimentIntensityAnalyzer().polarity_scores(s3)
+            
+            ## Metropoles
+
+            s4 = rq[0]['Metropoles']['Corpus']
+            metropolesSentiment = SentimentIntensityAnalyzer().polarity_scores(s4)
 
             print(f"Folha de Sao Paulo artigo: {folhaCorpusSentiment}")
             print(f"Gazeta do Povo artigo: {gazetaCorpusSentiment}")
             print(f"G1 artigo: {g1CorpusSentiment}")
+            print(f"Metropoles artigo: {metropolesSentiment}")
 
             return {
                 'Folha_de_sao_paulo':{
@@ -247,6 +291,11 @@ class Scraper:
                     'negativo': f"{round(g1CorpusSentiment['neg']*100, 2)}%",
                     'neutro': f"{round(g1CorpusSentiment['neu']*100, 2)}%",
                     'positivo': f"{round(g1CorpusSentiment['pos']*100, 2)}%"
+                },
+                'Metropoles': {
+                    'negativo': f"{round(metropolesSentiment['neg']*100, 2)}%",
+                    'neutro': f"{round(metropolesSentiment['neu']*100, 2)}%",
+                    'positivo': f"{round(metropolesSentiment['pos']*100, 2)}%"
                 }
             }
         except Exception as e:
@@ -259,6 +308,7 @@ class Scraper:
             folhaCorpus = {}
             gazetaCorpus = {}
             g1Corpus = {}
+
             req = self.GetSimilarity()
             urls = [ ## Links de cada notícia
                 req['Folha_de_sao_paulo_similaridade']['Link'],
