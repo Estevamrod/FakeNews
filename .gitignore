@@ -5,6 +5,8 @@ client/node_modules
 client/.pnp
 client/.pnp.js
 client/.yarn/install-state.gz
+*__pycache__
+*pyc
 
 # testing
 client/coverage

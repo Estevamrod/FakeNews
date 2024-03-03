@@ -1,11 +1,19 @@
 from flask import Flask, request
-from Controller.G1 import HeaderSimilarity as Hs
-
+from Scraper import Scraper as sc
 app = Flask(__name__)
 
 @app.route('/scrapping', methods=['POST'])
 def webscrapping():
     if request.json != {}:
-        data = Hs.HeaderSimilarity(request.json['userQuery'])
+        sentimentAnalisys = sc(request.json['userQuery']).SentimentAnalisys()
+        # GetCorpus = sc(request.json['userQuery']).GetCorpus()
+        # Similarity = sc(request.json['userQuery']).GetSimilarity()
+        # GetData = sc(request.json['userQuery']).GetData()
         print(request.headers)
-        return data
+        # return {
+        #     'Analise_de_Sentimento': sentimentAnalisys,
+        #     'GetCorpus': GetCorpus,
+        #     'Similarity': Similarity,
+        #     'Getdata': GetData
+        # }
+        return sentimentAnalisys
