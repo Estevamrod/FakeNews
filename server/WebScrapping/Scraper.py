@@ -24,9 +24,9 @@ class Scraper:
             
         ]
         searchEngineGoogle = [
-            'https://cse.google.com/cse/element/v1?rsz=filtered_cse&num=10&hl=pt-BR&source=gcsc&gss=.br&cselibv=8435450f13508ca1&cx=33c20c29942ff412b&safe=off&cse_tok=AB-tC_4nab4WbFDSBcnDAtSOud68%3A1709457654566&lr=&cr=&gl=&filter=0&sort=&as_oq=&as_sitesearch=*.uol.com.br%2F*&exp=cc&fexp=72497452&g-recaptcha-response=03AFcWeA7Ao6R4WeLrunxfUmK908QyrysaEFdKPz5UsSFXbVdTZ6_RiGwLFwpjT-JlEOjzN6h0uz2V4V7DNes_07_3nHFDL9Fosmg2uJ5QxdkrluHTsHahy6_DvBDahARAdQSw_jVEwidjPP7-MpgxSpsZnWX5J7X7LCTyELn3TjlqLJSl80DaLDKPeABAndjVEE4jiK7W1aT8gyRa8zhJghxUehV_fGpX_Qn10meQrlxY3juigZbwQUHAKhMtTTxHRRpKx3kuYmOgj7R2pZrxxmsd1rF8r-EVJha0CZYrUjF2N31NpAaihf_-96XJFUh5iEuZyv1hjLwevFHgOS8hKg5Ow8cruJ-X8pRFpkQSPasqhXePatOwLq7gsfEi69TF85Taku-QzU5Y4jzh-lRs-k-5a2JpnPKBxiYElRl9h9upITf5mPZksKsPM8X4ghh_c6CSPTEP9s1IOXN-Xdh_SS7cMPdhZuZLCm4CW2EJKbtLYWCswA3_kOaZzswwggNN9L6lhBF5VsIja1J7Mgus3S0U4BgX3uBkO7JeiPwnexIyh56mZMoW43dmWCvL_fWGSQ4QsPeIgoMJiF_eNOdstBOPJIp83MoW8Sl2esCbovGGT5-FEeqQM7L2a9paqOvR-Wm3j6SxALfX&callback=google.search.cse.api18180&',
+            'https://cse.google.com/cse/element/v1?rsz=filtered_cse&num=10&hl=pt-PT&source=gcsc&gss=.com&cselibv=8435450f13508ca1&cx=004590593083191455447%3A5j_p3qfagic&safe=off&cse_tok=AB-tC_7ewW0pO9BEfIR_jEBFa923%3A1709937160692&sort=&exp=cc%2Cdtsq-3&fexp=72497452&callback=google.search.cse.api5181&',
             # UOL
-            'https://cse.google.com/cse/element/v1?rsz=filtered_cse&num=10&hl=pt-PT&source=gcsc&gss=.com&cselibv=8435450f13508ca1&cx=004590593083191455447%3A5j_p3qfagic&safe=off&cse_tok=AB-tC_6BjXhgINlir6Uhehkrv4vD%3A1709466025183&sort=&exp=cc%2Cdtsq-3&fexp=72497452&callback=google.search.cse.api5344&',
+            'https://cse.google.com/cse/element/v1?rsz=filtered_cse&num=10&hl=pt-BR&source=gcsc&gss=.br&cselibv=8435450f13508ca1&cx=33c20c29942ff412b&safe=off&cse_tok=AB-tC_6O_nEFvMPcLyCF3I43OvcT%3A1709937247606&lr=&cr=&gl=&filter=0&sort=&as_oq=&as_sitesearch=*.uol.com.br%2F*&exp=cc&fexp=72522726%2C72523582%2C72497452&callback=google.search.cse.api14043&',
             # Metropoles
         ]
         try:
@@ -526,12 +526,11 @@ class Scraper:
             print(f"status_code_first_attemp: {rq.status_code}")
             if rq.status_code == 200:
                 htmlcontent = rq.text.split('/*O_o*/')[1].split(str(api_key)+'(')[1].split(');')[0]
-                if json.loads(htmlcontent)['error']['code'] == 403 or json.loads(htmlcontent)['error']['code'] == 429:
+                print(htmlcontent[2:7])
+                if htmlcontent[2:7] == 'error':
                     return {'dados':self.MultiConnectionsWithProxy(url, api_key)}
                 else:
-                    return htmlcontent
-            else:
-                return {'dados':self.MultiConnectionsWithProxy(url, api_key)}
+                    return {'dados':json.loads(htmlcontent)}
         except Exception as e:
             print(e)
             return {'msg':'Nao foi possivel finalizar a requisicao, por favor tente novamente!'}
