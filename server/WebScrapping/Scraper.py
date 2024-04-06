@@ -1,7 +1,8 @@
 import nltk
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
-import requests
+import grequests
 from bs4 import BeautifulSoup
+import requests
 import spacy
 import json
 
@@ -23,300 +24,169 @@ class Scraper:
             # Estadao
             
         ]
-        searchEngineGoogle = [
-            'https://cse.google.com/cse/element/v1?rsz=filtered_cse&num=10&hl=pt-PT&source=gcsc&gss=.com&cselibv=8435450f13508ca1&cx=004590593083191455447%3A5j_p3qfagic&safe=off&cse_tok=AB-tC_7ewW0pO9BEfIR_jEBFa923%3A1709937160692&sort=&exp=cc%2Cdtsq-3&fexp=72497452&callback=google.search.cse.api5181&',
-            # UOL
-            'https://cse.google.com/cse/element/v1?rsz=filtered_cse&num=10&hl=pt-BR&source=gcsc&gss=.br&cselibv=8435450f13508ca1&cx=33c20c29942ff412b&safe=off&cse_tok=AB-tC_6O_nEFvMPcLyCF3I43OvcT%3A1709937247606&lr=&cr=&gl=&filter=0&sort=&as_oq=&as_sitesearch=*.uol.com.br%2F*&exp=cc&fexp=72522726%2C72523582%2C72497452&callback=google.search.cse.api14043&',
-            # Metropoles
-        ]
+        # searchEngineGoogle = [
+        #     'https://cse.google.com/cse/element/v1?rsz=filtered_cse&num=10&hl=pt-PT&source=gcsc&gss=.com&cselibv=8435450f13508ca1&cx=004590593083191455447%3A5j_p3qfagic&safe=off&cse_tok=AB-tC_7ewW0pO9BEfIR_jEBFa923%3A1709937160692&sort=&exp=cc%2Cdtsq-3&fexp=72497452&callback=google.search.cse.api5181&',
+        #     # UOL
+        #     'https://cse.google.com/cse/element/v1?rsz=filtered_cse&num=10&hl=pt-BR&source=gcsc&gss=.br&cselibv=8435450f13508ca1&cx=33c20c29942ff412b&safe=off&cse_tok=AB-tC_6O_nEFvMPcLyCF3I43OvcT%3A1709937247606&lr=&cr=&gl=&filter=0&sort=&as_oq=&as_sitesearch=*.uol.com.br%2F*&exp=cc&fexp=72522726%2C72523582%2C72497452&callback=google.search.cse.api14043&',
+        #     # Metropoles
+        # ]
+        data = []
         try:
-            dadosG1 = {}
-            dadosFolha = {}
-            dadosGazeta = {}
-            dadosEstadao = {}
-            completeData= {}
-
-            for url in searchEngineStandart:
-                rs = requests.get(url, params={'q':self.newstoSearch.replace(" ", "+")})
-                print(f"status code: {rs.status_code}")
-                htmlcontent = rs.content
-                i = 0 
-                print(f'Actual url in request: {url}')
-                soup = BeautifulSoup(htmlcontent, 'html.parser')
-                ##inicio g1
+            ## FILTRO => resultado = list(filter(lambda x: x['site'] == 'estado', data))
+            req = [grequests.get(str(url) + 'q=' + self.newstoSearch.replace(" ", "+")) for url in searchEngineStandart]
+            responses = grequests.map(req, size=2)
+            for response in responses:
+                print(f"status_code:{response.status_code}")
+                soup = BeautifulSoup(response.content, 'html.parser')
+                ##inicio g1 
                 for gTitulo in soup.find_all(class_='widget--info__title product-color'):
-                    # print(i.get_text())
-                    dadosG1[i] = {
-                        'site':url, 
-                        'dados': {
-                            'titulo': gTitulo.get_text().strip()
-                        }
-                        }
-                    i += 1
+                    data.append({'site_url':searchEngineStandart[0], 'site_name':'G1', 'dados':{'titulo':gTitulo.get_text().strip()}})
+                g1 = list(filter(lambda x: x['site_name'] == 'G1', data))
                 i = 0
                 for gSubtitulo in soup.find_all(class_='widget--info__description'):
-                    dadosG1[i]['dados']['subtitulo'] = gSubtitulo.get_text().strip()
-                    i += 1
+                    if i < len(g1):
+                        g1[i]['dados']['subtitulo'] = gSubtitulo.get_text().strip()
+                        i+= 1
                 i = 0
                 for gLink in soup.find_all(class_='widget--info__text-container'):
-                    # print(gLink.find('a').get('href'))
-                    dadosG1[i]['dados']['Link'] = gLink.find('a').get('href')
-                    i += 1
+                    if i < len(g1):
+                        g1[i]['dados']['Link'] = gLink.find('a').get('href')
+                        i+= 1
                 ##fim g1
                 ##inicio folha
-                i = 0
                 for fTitulo in soup.find_all(class_='c-headline__title'):
-                    # print(fTitulo.get_text().strip())
-                    dadosFolha[i] = {
-                        'site':url,
-                        'dados': {
-                            'titulo': fTitulo.get_text().strip()
-                        }
-                    }
-                    i += 1
+                    data.append({'site_url':searchEngineStandart[1], 'site_name':'Folha_de_sao_paulo', 'dados': {'titulo':fTitulo.get_text().strip()}})
+                folha = list(filter(lambda x: x['site_name'] == 'Folha_de_sao_paulo', data))
                 i = 0
                 for fSubtitulo in soup.find_all(class_='c-headline__standfirst'):
-                    # print(fSubtitulo.get_text().strip().removeprefix('O jornal Folha de S.Paulo é publicado pela Empresa Folha da Manhã S.A. CNPJ: 60.579.703/0001-48'))
-                    if fSubtitulo.get_text().strip() != 'O jornal Folha de S.Paulo é publicado pela Empresa Folha da Manhã S.A. CNPJ: 60.579.703/0001-48':
-                        dadosFolha[i]['dados']['subtitulo'] = fSubtitulo.get_text().strip()
-                    i += 1    
+                    if fSubtitulo.get_text().strip() != 'O jornal Folha de S.Paulo é publicado pela Empresa Folha da Manhã S.A. CNPJ: 60.579.703/0001-48' and i < len(folha):
+                        folha[i]['dados']['subtitulo'] = fSubtitulo.get_text().strip()
+                        i += 1
                 i = 0
                 for fLink in soup.find_all(class_='c-headline__content'):
-                    # print(gLink.find('a').get('href'))
-                    dadosFolha[i]['dados']['Link'] = fLink.find('a').get('href')
-                    i += 1
+                    if i < len(folha):
+                        folha[i]['dados']['Link'] = fLink.find('a').get('href')
+                        i += 1
                 ## Fim Folha
                 ## Gazeta do Povo
-                i = 0
                 for gpTitulo in soup.find_all(class_='post-title'):
-                    # print(gpTitulo.get_text().strip())
-                    dadosGazeta[i] = {
-                        'site': url,
-                        'dados': {
-                            'titulo': gpTitulo.get_text().strip()
-                        }
-                    }
-                    i += 1
+                    data.append({'site_url': searchEngineStandart[2], 'site_name':'Gazeta_do_povo', 'dados':{'titulo': gpTitulo.get_text().strip()}})
+                gp = list(filter(lambda x: x['site_name'] == 'Gazeta_do_povo', data))
                 i = 0
                 for gpSubtitulo in soup.find_all(class_='post-summary'):
-                    # print(gpSubtitulo.get_text().strip())
-                    dadosGazeta[i]['dados']['subtitulo'] = gpSubtitulo.get_text().strip()
-                    i += 1
+                    if i < len(gp):
+                        gp[i]['dados']['subtitulo'] = gpSubtitulo.get_text().strip()
+                        i += 1
                 i = 0
                 for gpLink in soup.find_all(class_='post-url'):
-                    # print(gpLink.get('href'))
-                    dadosGazeta[i]['dados']['Link'] = gpLink.get('href')
-                    i += 1
+                    if i < len(gp):
+                        gp[i]['dados']['Link'] = gpLink.get('href')
+                        i += 1
                 ## Fim Gazeta
-                    
                 ## Estadao
-                i = 0
                 for estadoTitulo in soup.find_all(class_='link-title'):
-                    # print(estadoTitulo.find('h3').get_text().strip())
-                    dadosEstadao[i] = {
-                        'site': url,
-                        'dados': {
-                            'titulo': estadoTitulo.find('h3').get_text().strip(),
-                            'Link': estadoTitulo.get('href')
-                        }
-                    }
-                    i += 1
-            try:
-                dadosUol = {}
-                dadosMetropoles = {}
+                    data.append({'site_url':searchEngineStandart[3], 'site_name':'Estadao', 'dados':{'titulo': estadoTitulo.find('h3').get_text().strip(), 'Link': estadoTitulo.get('href')}})
+                
+                estadao = list(filter(lambda x: x['site_name'] == 'Estadao', data))
                 i = 0
-
-                for url in searchEngineGoogle:
-                    content = self.GetContentGoogleSearch(url)
-                    jsonContent = json.loads(content['dados'])
-
-                    if url == searchEngineGoogle[0]:
-                        for uolTitle in jsonContent['results']:
-                            dadosUol[i] = {
-                                'site': url,
-                                'dados': {
-                                    'titulo': uolTitle['richSnippet']['metatags']['ogTitle'],
-                                    'subtitulo': uolTitle['richSnippet']['metatags']['ogDescription'],
-                                    'Link': uolTitle['url']
-                                }
-                            }
+                for estadoSubtitulo in soup.find_all(class_='link-title'):
+                    for item in estadoSubtitulo.find_all('p'):
+                        if i < len(estadao):
+                            estadao[i]['dados']['subtitulo'] = "Nao possui subtitulo" if item.get_text().strip() == '' else item.get_text().strip()
                             i += 1
-                    if url == searchEngineGoogle[1]:
-                        i = 0
-                        for metrotitle in jsonContent['results']:
-                            dadosMetropoles[i] = {
-                                'site':url,
-                                'dados': {
-                                    'titulo': metrotitle['richSnippet']['metatags']['ogTitle'],
-                                    'subtitulo':metrotitle['richSnippet']['metatags']['ogDescription'],
-                                    'Link': metrotitle['url']
-                                }
-                            }
-                            i += 1
-                    
-                    if dadosG1 != {} and dadosFolha != {} and dadosGazeta != {} and dadosEstadao != {} and dadosUol != {} and dadosMetropoles != {}: 
-                        completeData = {
-                            'Folha_de_sao_paulo':dadosFolha,
-                            'G1': dadosG1,
-                            'Gazeta_do_povo': dadosGazeta,
-                            'Estadao': dadosEstadao,
-                            'Metropoles': dadosMetropoles,
-                            'UOL': dadosUol
-                    }
-            except Exception as e:
-                print(e)
-                print('aqui')
+            
+            return {
+                'Folha_de_sao_paulo': folha,
+                'G1': g1,
+                'Estadao': estadao,
+                'Gazeta_do_povo': gp
+            }
         except Exception as e:
             print(e)
-        return completeData
 
     def GetSimilarity(self): ## Após "pegar" as informações de um conjunto de notícias, precisamos agora análisar cada titulo e subtitulo para ver qual notícia é mais adequada com o que o usuário pesquisou
-        Similaridade = {}
-        g1Similar = {}
-        gazetaSimilar = {}
-        metropolesSimilar = {}
-        folhaSimilar = {}
-        uolSimilar = {}
-        estadaoSimilar = {}
+        Similaridade = []
 
         try:
-            rsData = self.GetData()
+            response = self.GetData()
             ## Inicio G1
             nlp = spacy.load('pt_core_news_lg') ## Para carregar o pacote que usaremos para analisar os titulos e as manchetes
             s1 = nlp(self.newstoSearch) ## Cria um objeto com as informações estruturais gramaticais e semânticas do texto
 
+            for gTitulo in response['G1']:
+                s2 = nlp(gTitulo['dados']['titulo'])
+                Similaridade.append({'Similaridade':{'titulo': f"{round(s1.similarity(s2)*100, 2)}%", 'titulo_original': gTitulo['dados']['titulo'], 'Link_Noticia': gTitulo['dados']['Link']}, 'site_name':'G1'})
+
+            g1Similar = list(filter(lambda x: x['site_name'] == 'G1', Similaridade))
             i = 0
-            for gTitulo in rsData['G1']:
-                s2 = nlp(rsData['G1'][gTitulo]['dados']['titulo'])
+            for gSubtitulo in response['G1']:
+                s2 = nlp(gSubtitulo['dados']['subtitulo'])
 
-
-                g1Similar[i] = {
-                    'SimilaridadeTitulo': f"{round(s1.similarity(s2)*100, 2)}%", ## round(s1.similarity(s2)* 100, 2 ) -> em s1.similarity(s2). Estamos comparando o nível de similaridade com o que foi pesquisado - pelo usuario - e o titulo/subtitulo
-                    'titulo': rsData['G1'][gTitulo]['dados']['titulo'],          ## Após isso, multiplicamos por 100 para transformar em porcentagem e o round é para pegar 2 números após a vírgula
-                    'Link': rsData['G1'][gTitulo]['dados']['Link']
-                }
-                i += 1
-                # print(f"g1 Titulo: {round(s1.similarity(s2)*100, 2)}%")
-
-            i = 0
-            for gSubtitulo in rsData['G1']:
-                s2 = nlp(rsData['G1'][gSubtitulo]['dados']['subtitulo'])
-
-                g1Similar[i]['SimilaridadeSubtitulo'] = f"{round(s1.similarity(s2)*100, 2)}%"
-                g1Similar[i]['subtitulo'] = rsData['G1'][gSubtitulo]['dados']['subtitulo']
-                # print(f"g1 Subtitulo: {round(s1.similarity(s2)* 100, 2)}")
+                g1Similar[i]['Similaridade']['subtitulo'] = f"{round(s1.similarity(s2)*100, 2)}%"
+                g1Similar[i]['Similaridade']['subtitulo_original'] = gSubtitulo['dados']['subtitulo']
                 i += 1
             ## fim g1
             ## Inicio Folha
-            i = 0
-            for fTitulo in rsData['Folha_de_sao_paulo']:
-                s2 = nlp(rsData['Folha_de_sao_paulo'][fTitulo]['dados']['titulo'])
+            for fTitulo in response['Folha_de_sao_paulo']:
+                s2 = nlp(fTitulo['dados']['titulo'])
+                Similaridade.append({'Similaridade':{'titulo': f"{round(s1.similarity(s2)*100, 2)}%", 'titulo_original': fTitulo['dados']['titulo'], 'Link_Noticia': fTitulo['dados']['Link']}, 'site_name':'Folha_De_Sao_paulo'})
 
-                folhaSimilar[i] = {
-                    'SimilaridadeTitulo': f"{round(s1.similarity(s2)*100, 2)}%",
-                    'titulo': rsData['Folha_de_sao_paulo'][fTitulo]['dados']['titulo'],
-                    'Link': rsData['Folha_de_sao_paulo'][fTitulo]['dados']['Link']
-                }
-                # print(f"folha titulo: {round(s1.similarity(s2)*100, 2)}")
-                i += 1
-
+            folhaSimiliar = list(filter(lambda x: x['site_name'] == 'Folha_De_Sao_paulo', Similaridade))
             i=0
-            for fSubtitulo in rsData['Folha_de_sao_paulo']:
-                s2 = nlp(rsData['Folha_de_sao_paulo'][fSubtitulo]['dados']['subtitulo'])
+            for fSubtitulo in response['Folha_de_sao_paulo']:
+                s2 = nlp(fSubtitulo['dados']['subtitulo'])
 
-                folhaSimilar[i]['SimilaridadeSubtitulo'] = f"{round(s1.similarity(s2)*100, 2)}%"
-                folhaSimilar[i]['subtitulo'] = rsData['Folha_de_sao_paulo'][fSubtitulo]['dados']['subtitulo']
-                # print(f"folha subtitulo: {round(s1.similarity(s2)*100, 2)}")
+                folhaSimiliar[i]['Similaridade']['subtitulo'] = f"{round(s1.similarity(s2)*100, 2)}%"
+                folhaSimiliar[i]['Similaridade']['subtitulo_original'] = fSubtitulo['dados']['subtitulo']
                 i += 1
 
             ## Fim Folha
             ## Inicio Gazeta
-            i = 0
-            for gpTitulo in rsData['Gazeta_do_povo']:
-                s2 = nlp(rsData['Gazeta_do_povo'][gpTitulo]['dados']['titulo'])
-
-                gazetaSimilar[i] = {
-                    'SimilaridadeTitulo': f"{round(s1.similarity(s2)* 100, 2)}%",
-                    'titulo': rsData['Gazeta_do_povo'][gpTitulo]['dados']['titulo'],
-                    'Link': rsData['Gazeta_do_povo'][gpTitulo]['dados']['Link']
-                }
-                # print(f"Gazeta Titulo: {round(s1.similarity(s2)*100, 2)}")
-                i += 1
+            for gpTitulo in response['Gazeta_do_povo']:
+                s2 = nlp(gpTitulo['dados']['titulo'])
+                Similaridade.append({'Similaridade':{'titulo': f"{round(s1.similarity(s2)*100, 2)}%", 'titulo_original': gpTitulo['dados']['titulo'], 'Link_Noticia': gpTitulo['dados']['Link']}, 'site_name':'Gazeta_do_povo'})
             
+            gazetaSimilar = list(filter(lambda x:x['site_name'] == 'Gazeta_do_povo', Similaridade))
             i = 0
-            for gpSubtitulo in rsData['Gazeta_do_povo']:
-                s2 = nlp(rsData['Gazeta_do_povo'][gpSubtitulo]['dados']['subtitulo'])
+            for gpSubtitulo in response['Gazeta_do_povo']:
+                s2 = nlp(gpSubtitulo['dados']['subtitulo'])
 
-                gazetaSimilar[i]['SimilaridadeSubtitulo'] = f"{round(s1.similarity(s2)* 100, 2)}"
-                gazetaSimilar[i]['subtitulo'] = rsData['Gazeta_do_povo'][gpSubtitulo]['dados']['subtitulo']
-                # print(f"Gazeta subtitulo: {round(s1.similarity(s2)*100, 2)}")
+                gazetaSimilar[i]['Similaridade']['subtitulo'] = f"{round(s1.similarity(s2)* 100, 2)}"
+                gazetaSimilar[i]['Similaridade']['subtitulo_original'] = gpSubtitulo['dados']['subtitulo']
                 i += 1
             ## Fim Gazeta
-            ## Inicio Metropoles
-            i = 0
-            for metroTitulo in rsData['Metropoles']:
-                s2 = nlp(rsData['Metropoles'][metroTitulo]['dados']['titulo'])
-
-                metropolesSimilar[i] = {
-                    'SimilaridadeTitulo': f"{round(s1.similarity(s2)*100, 2)}%",
-                    'titulo': rsData['Metropoles'][metroTitulo]['dados']['titulo'],
-                    'Link': rsData['Metropoles'][metroTitulo]['dados']['Link']
-                }
-                i += 1
-            i = 0
-            for metroSubtitulo in rsData['Metropoles']:
-                s2 = nlp(rsData['Metropoles'][metroSubtitulo]['dados']['subtitulo'])
-
-                metropolesSimilar[i]['SimilaridadeSubtitulo'] = f"{round(s1.similarity(s2)*100,2)}%"
-                metropolesSimilar[i]['subtitulo'] = rsData['Metropoles'][metroSubtitulo]['dados']['subtitulo']
-                i += 1
-
-            ## Fim Metropoles
-            ## Inicio UOL
-            i = 0
-            for uoltitulo in rsData['UOL']:
-                s2 = nlp(rsData['UOL'][uoltitulo]['dados']['titulo'])
-
-                uolSimilar[i] = {
-                    'SimilaridadeTitulo': f"{round(s1.similarity(s2)*100, 2)}%",
-                    'titulo': rsData['UOL'][uoltitulo]['dados']['titulo'],
-                    'Link': rsData['UOL'][uoltitulo]['dados']['Link']
-                }
-                i += 1
-            
-            i = 0
-            for uolsubtitulo in rsData['UOL']:
-                s2 = nlp(rsData['UOL'][uolsubtitulo]['dados']['subtitulo'])
-
-                uolSimilar[i]['SimilaridadeSubtitulo'] = f"{round(s1.similarity(s2)*100, 2)}%"
-                uolSimilar[i]['subtitulo'] = rsData['UOL'][uolsubtitulo]['dados']['subtitulo']
-
-                i += 1
-            
-            ## Fim Uol
             ## Inicio Estadao
             
+            for estadaotitulo in response['Estadao']:
+                s2 = nlp(estadaotitulo['dados']['titulo'])
+                Similaridade.append({'Similaridade':{'titulo': f"{round(s1.similarity(s2)*100, 2)}%", 'titulo_original': estadaotitulo['dados']['titulo'], 'Link_Noticia': estadaotitulo['dados']['Link']}, 'site_name':'Estadao'})
+            
+            estadaoSimilar = list(filter(lambda x:x['site_name'] == 'Estadao', Similaridade))
             i = 0
-            for estadaotitulo in rsData['Estadao']:
-                s2 = nlp(rsData['Estadao'][estadaotitulo]['dados']['titulo'])
+            for estadaoSubtitulo in response['Estadao']:
+                s2 = nlp(estadaoSubtitulo['dados']['subtitulo'])
+                estadaoSimilar[i]['Similaridade']['subtitulo'] = f"{round(s1.similarity(s2)*100, 2)}"
+                estadaoSimilar[i]['Similaridade']['subtitulo_original'] = estadaoSubtitulo['dados']['subtitulo']
+                i+= 1
 
-                estadaoSimilar[i] = {
-                    'SimilaridadeTitulo': f"{round(s1.similarity(s2)*100,2)}%",
-                    'titulo': rsData['Estadao'][estadaotitulo]['dados']['titulo'],
-                    'Link':rsData['Estadao'][estadaotitulo]['dados']['Link']
-                }   
-                i += 1
-
-            if gazetaSimilar != {} and folhaSimilar != {} and g1Similar != {} and metropolesSimilar != {} and uolSimilar != {} and estadaoSimilar != {}:
-                Similaridade = {
-                    'Folha_de_sao_paulo_similaridade': folhaSimilar.get(max(folhaSimilar, key=lambda k:folhaSimilar[k]['SimilaridadeTitulo'])), ## Essa função de max, analisa todo o ditc(hashmap) e nos tras o maior valor que aquele dict possui
-                    'Gazeta_do_povo_similaridade': gazetaSimilar.get(max(gazetaSimilar, key=lambda k:gazetaSimilar[k]['SimilaridadeTitulo'])),
-                    'G1_similaridade': g1Similar.get(max(g1Similar, key=lambda k:g1Similar[k]['SimilaridadeTitulo'])),
-                    'Metropoles_similaridade': metropolesSimilar.get(max(metropolesSimilar, key=lambda k: metropolesSimilar[k]['SimilaridadeTitulo'])),
-                    'UOL_similaridade': uolSimilar.get(max(uolSimilar, key=lambda k: uolSimilar[k]['SimilaridadeTitulo'])),
-                    'Estadao_similaridade': estadaoSimilar.get(max(estadaoSimilar, key=lambda k: estadaoSimilar[k]['SimilaridadeTitulo']))
+            return {
+                'Folha_de_SaoPaulo': {
+                    'titulo_mais_similar': [] if folhaSimiliar  == [] else max(folhaSimiliar, key=lambda x: x['Similaridade']['titulo'])['Similaridade'],
+                    'subtitulo_mais_similar': [] if folhaSimiliar == [] else max(folhaSimiliar, key=lambda x: x['Similaridade']['subtitulo'])['Similaridade']
+                },
+                'Gazeta_do_povo': {
+                    'titulo_mais_similar': [] if gazetaSimilar  == [] else max(gazetaSimilar, key=lambda x: x['Similaridade']['titulo'])['Similaridade'],
+                    'subtitulo_mais_similar': [] if gazetaSimilar  == [] else max(gazetaSimilar, key=lambda x: x['Similaridade']['subtitulo'])['Similaridade']
+                },
+                'G1': {
+                    'titulo_mais_similar': [] if g1Similar == [] else max(g1Similar, key=lambda x:x['Similaridade']['titulo'])['Similaridade'],
+                    'subtitulo_mais_similar':  [] if g1Similar == [] else max(g1Similar, key=lambda x: x['Similaridade']['subtitulo'])['Similaridade']
+                },
+                'Estadao': {
+                    'titulo_mais_similar': [] if estadaoSimilar == [] else max(estadaoSimilar, key=lambda x:x['Similaridade']['titulo'])['Similaridade'],
+                    'subtitulo_mais_similar': [] if estadaoSimilar == [] else max(estadaoSimilar, key=lambda x:x['Similaridade']['subtitulo'])['Similaridade']
                 }
-                return Similaridade
+            }
         except Exception as e:
             print('achei?')
             print(e)
@@ -325,7 +195,7 @@ class Scraper:
     def SentimentAnalisys(self): ## Aqui analisaremos a emoção de cada texto, onde utilizaremos Neutro, Positivo e Negativo para avaliar
         nltk.download('vader_lexicon')
         try:
-            rq = self.GetCorpus()
+            response = self.GetCorpus()
             
             ## Folha de Sao Paulo
             s1 = rq[0]['Folha_de_sao_paulo']['Corpus']
@@ -400,115 +270,74 @@ class Scraper:
     
     def GetCorpus(self): ## Aqui pegamos o corpo da notícia que é mais adequada com o que se é pesquisado pelo usuário
         try:
-            folhaCorpus = {}
-            gazetaCorpus = {}
-            g1Corpus = {}
-            metropolesCorpus = {}
-            uolCorpus = {}
-            estadaoCorpus = {}
+            Corpus = []
+            urls = []
+            
+            data = self.GetSimilarity()
+            for links in data:
+                urls.append({'dados':{'titulo_link':data[links]['titulo_mais_similar']['Link_Noticia'], 'subtitulo_link':data[links]['subtitulo_mais_similar']['Link_Noticia']}, 'site_name':links})
 
-            req = self.GetSimilarity()
-            urls = [ ## Links de cada notícia
-                req['Folha_de_sao_paulo_similaridade']['Link'],
-                req['Gazeta_do_povo_similaridade']['Link'],
-                f"https:{req['G1_similaridade']['Link']}",
-                req['Metropoles_similaridade']['Link'],
-                req['Estadao_similaridade']['Link'],
-                req['UOL_similaridade']['Link']
-            ]
-            for url in urls:
-                reqCorpus = requests.get(url)
-                print(f"status_code: {reqCorpus.status_code}")
-                print(url)
-                htmlcontent = reqCorpus.content
-
-                soup = BeautifulSoup(htmlcontent, 'html.parser')
+            req = [grequests.get(link['dados']['titulo_link']) for link in urls]
+            responses = grequests.map(req, size=4)
+            for response in responses:
+                print(f"Corpus-status_code: {response.status_code}")
+                
+                soup = BeautifulSoup(response.content, 'html.parser')
 
                 ## Folha
-                i = 0
-                fullcorpus = ''
-                if url == urls[0]:
-                    for fbody in soup.find_all(class_='c-news__body'):
-                        while(i < len(fbody.find_all('p'))):
-                            # print(body.find_all('p')[i].get_text().strip())
-                            fullcorpus += fbody.find_all('p')[i].get_text().strip()
-                            i += 1
-                    folhaCorpus = {
-                        'Corpus': fullcorpus
-                    }
                 
-                ## Gazeta
-                i = 0
-                fullcorpus = ''
-                if url == urls[1]:
-                    for gaBody in soup.find_all(class_='wrapper'):
-                        # print(gaBody.find_all('p'))
-                        while (i < len(gaBody.find_all('p'))):
-                            fullcorpus += gaBody.find_all('p')[i].get_text().strip()
-                            i += 1
-                    gazetaCorpus = {
-                        'Corpus': fullcorpus
-                    }
-
-                ## G1
-                i = 0
-                fullcorpus = ''
-                link = ''
-                if url == urls[2]:
-                    for originalLink in soup.find('script'):
-                        link = originalLink.format().rsplit('window.location.replace("')[1].rsplit('");')[0]
-                    reqCorpus = requests.get(link) ## -> Os links do G1 tem um problema para serem feitos requests, pois acaba dando erro e nesse erro está o link correto
-                    print(f"g1 status_code: {reqCorpus.status_code}")
-                    htmlcontent = reqCorpus.content
-                    soup = BeautifulSoup(htmlcontent, 'html.parser')
-
-                    for g1body in soup.find_all(class_='wall protected-content'):
-                        # print(g1body.find_all('p'))
-                        while (i < len(g1body.find_all('p'))):
-                            fullcorpus += g1body.find_all('p')[i].get_text().strip()
-                            i += 1
-                    g1Corpus = {
-                        'Corpus': fullcorpus
-                    }
-            
-                ## Metropoles
-                i = 0
-                fullcorpus = ''
-                if url == urls[3]:
-                    for metroBody in soup.find_all(class_='ConteudoNoticiaWrapper__Artigo-sc-19fsm27-1 iRPifh'):
-                        # print(metroBody.find_all('p'))
-                        while (i < len(metroBody.find_all('p'))):
-                            fullcorpus += metroBody.find_all('p')[i].get_text().strip()
-                            i += 1
-                    metropolesCorpus = {
-                        'Corpus': fullcorpus
-                    }
-                
-                ## Estadao
+                for item in urls:
+                    i = 0
+                    fullcorpus = ''
+                    if item['site_name'] == 'Folha_de_SaoPaulo':
+                        for fbody in soup.find_all(class_='c-news__body'):
+                            while(i < len(fbody.find_all('p'))):
+                                fullcorpus += fbody.find_all('p')[i].get_text().strip()
+                                i += 1
+                        Corpus.append({'site_name':item['site_name'], 'Corpus':fullcorpus})
                     
-                i = 0
-                fullcorpus = ''
-                if url == urls[4]:
-                    for estadobody in soup.find_all(class_='styles__ContentWrapperContainerStyled-sc-1ehbu6v-0'):
-                        while(i < len(estadobody.find_all('p'))):
-                            fullcorpus += estadobody.find_all('p')[i].get_text().strip()
-                            i += 1
-                    estadobody = {
-                        'Corpus': fullcorpus
-                    }
+                    if item['site_name'] == 'Gazeta_do_povo':
+                        ## Gazeta
+                        i = 0
+                        fullcorpus = ''
+                        for gaBody in soup.find_all(class_='wrapper'):
+                            while (i < len(gaBody.find_all('p'))):
+                                fullcorpus += gaBody.find_all('p')[i].get_text().strip()
+                                i += 1
+                        Corpus.append({'site_name':item['site_name'], 'Corpus': fullcorpus})
 
-                ## Uol
-                i = 0
-                fullcorpus = ''
-                if url == urls[5]:
-                    for uolBody in soup.find_all(class_='content'): ## Situacao caso seja para a BAND
-                        while (i < len(uolBody.find_all('p'))):
-                            fullcorpus += uolBody.find_all('p')[i].get_text().strip()
-                            i += 1
-                    uolCorpus = {
-                        'Corpus': fullcorpus
-                    }
-            return {'Folha_de_sao_paulo':folhaCorpus, 'Gazeta_do_povo':gazetaCorpus, 'G1': g1Corpus, 'Metropoles': metropolesCorpus, 'Estadao': estadobody, 'UOL':uolCorpus}, 200
+                    if item['site_name'] == 'G1':
+                        ## G1
+                        i = 0
+                        fullcorpus = ''
+                        g1link = ''
+
+                        for originalLink in soup.find('script'):
+                            g1link = originalLink.format().rsplit('window.location.replace("')[1].rsplit('");')[0]
+                            
+                        reqCorpus = grequests.get(g1link) ## -> Os links do G1 tem um problema para serem feitos requests, pois acaba dando erro e nesse erro está o link correto
+                        response = grequests.map(reqCorpus)
+                        for res in response:
+                            print(f"g1 status_code: {res.status_code}")
+                            soup = BeautifulSoup(res.content, 'html.parser')
+                            for g1body in soup.find_all(class_='wall protected-content'):
+                                while (i < len(g1body.find_all('p'))):
+                                    fullcorpus += g1body.find_all('p')[i].get_text().strip()
+                                    i += 1
+                            Corpus.append({'site_name':item['site_name'], 'Corpus':fullcorpus})
+
+                    if item['site_name'] == 'Estadao':
+                        ## Estadao
+                        i = 0
+                        fullcorpus = ''
+
+                        for estadobody in soup.find_all(class_='styles__ContentWrapperContainerStyled-sc-1ehbu6v-0'):
+                            while(i < len(estadobody.find_all('p'))):
+                                fullcorpus += estadobody.find_all('p')[i].get_text().strip()
+                                i += 1
+                        Corpus.append({'site_name':item['site_name'], 'Corpus': fullcorpus})
+
+            return {'Folha_de_sao_paulo':list(filter(lambda x: x['site_name'] == 'Folha_de_SaoPaulo', Corpus)), 'Gazeta_do_povo':list(filter(lambda x: x['site_name'] == 'Gazeta_do_povo', Corpus)), 'G1': list(filter(lambda x: x['site_name'] == 'G1', Corpus)), 'Estadao': list(filter(lambda x: x['site_name'] == 'Estadao', Corpus))}, 200
         except Exception as e:
             print('ou sera aqui?')
             print(e)
