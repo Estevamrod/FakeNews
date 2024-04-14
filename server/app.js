@@ -12,7 +12,7 @@ app.use(cors({
 }))
 
 app.get('/', (req, res) => {
-    return res.status(200).json({msg:"OK"});
+    return res.status(200).json({msg:"OK", origin:"javascript"});
 });
 
 app.post('/similar', async(req, res) => {
