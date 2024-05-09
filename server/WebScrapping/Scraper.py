@@ -252,25 +252,34 @@ class Scraper:
     def GetCorpus(self): ## Aqui pegamos o corpo da notícia que é mais adequada com o que se é pesquisado pelo usuário
         try:
             corpus = []
+            subtitle_corpus = []
             url_subtitlebased = []
             url_titlebased = []
+
             data = self.GetSimilarity()
+
             for site_origin in data:
                 url_titlebased.append({'site_origin':site_origin, 'link': data[site_origin]['titulo_mais_similar']['link_noticia']})
                 url_subtitlebased.append({'site_origin': site_origin, 'link': data[site_origin]['subtitulo_mais_similar']['link_noticia']})
+
             ## Start first with title link's based
+
             print(url_titlebased)
-            req = [grequests.get(link['link']) for link in url_titlebased]
-            responses = grequests.map(req, size=4)
-            for response in responses:
+            title_request = [grequests.get(link['link']) for link in url_titlebased]
+            title_response = grequests.map(title_request, size=4)
+            subtitle_request = [grequests.get(link['link']) for link in url_subtitlebased]
+            subtitle_response = grequests.map(subtitle_request, size=4)
+
+            for response in title_response:
                 print(f"get corpus: {response.status_code}")
                 soup = BeautifulSoup(response.content, 'html.parser')
-                print(any([index['link'] == response.url and index['site_origin'] == 'folha_de_saopaulo' for index in url_titlebased]) == True)
+                # print(any([index['link'] == response.url and index['site_origin'] == 'folha_de_saopaulo' for index in url_titlebased]) == True)
+                print(any([len(content) == 0 for content in subtitle_corpus]))
 
                 ## Folha
                 i = 0
                 fullcorpus = ''
-                if any([index['link'] == response.url and index['site_origin'] == 'folha_de_saopaulo' for index in url_titlebased]):
+                if any([index['link'] == response.url and index['site_origin'] == 'folha_de_saopaulo' for index in url_titlebased]) and any([len(content['site_origin']) == 0 for content in corpus]):
                     for fbody in soup.find_all(class_='c-news__body'):
                         while(i < len(fbody.find_all('p'))):
                             fullcorpus += fbody.find_all('p')[i].get_text().strip()
@@ -280,7 +289,7 @@ class Scraper:
                 ## Gazeta
                 i = 0
                 fullcorpus = ''
-                if any([index['link'] == response.url and index['site_origin'] == 'gazeta_do_povo' for index in url_titlebased]):
+                if any([index['link'] == response.url and index['site_origin'] == 'gazeta_do_povo' for index in url_titlebased]) and any([len(content['site_origin']) == 0 for content in corpus]):
                     for gaBody in soup.find_all(class_='wrapper'):
                         while (i < len(gaBody.find_all('p'))):
                             fullcorpus += gaBody.find_all('p')[i].get_text().strip()
@@ -291,7 +300,7 @@ class Scraper:
                 i = 0
                 fullcorpus = ''
                 g1link = []
-                if any([index['link'] == response.url and index['site_origin'] == 'g1' for index in url_titlebased]):
+                if any([index['link'] == response.url and index['site_origin'] == 'g1' for index in url_titlebased]) and any([len(content['site_origin']) == 0 for content in corpus]):
                     for originalLink in soup.find('script'):
                         if 'window.location.replace' in originalLink:
                             g1link.append({'g1_link':originalLink.format().rsplit('window.location.replace("')[1].rsplit('");')[0]})
@@ -311,46 +320,94 @@ class Scraper:
                 ## Estadao
                 i = 0
                 fullcorpus = ''
-                if any([index['link'] == response.url and index['site_origin'] == 'estadao' for index in url_titlebased]):
+                if any([index['link'] == response.url and index['site_origin'] == 'estadao' for index in url_titlebased]) and any([len(content['site_origin']) == 0 for content in corpus]):
                     for estadobody in soup.find_all(class_='styles__ContentWrapperContainerStyled-sc-1ehbu6v-0'):
                         while(i < len(estadobody.find_all('p'))):
                             fullcorpus += estadobody.find_all('p')[i].get_text().strip()
                             i += 1
                     corpus.append({'corpus': fullcorpus,'site_origin':'estadao'})
+            
+            ## get_corpus related to the subtitle
+            for response in subtitle_response:
+                print(f"get corpus: {response.status_code}")
+                soup = BeautifulSoup(response.content, 'html.parser')
+                print(any([index['link'] == response.url and index['site_origin'] == 'folha_de_saopaulo' for index in url_subtitlebased]) == True)
+
+                ## Folha
+                i = 0
+                fullcorpus = ''
+                if any([index['link'] == response.url and index['site_origin'] == 'folha_de_saopaulo' for index in url_subtitlebased]) and any([len(content['site_origin']) == 0 for content in subtitle_corpus]):
+                    for fbody in soup.find_all(class_='c-news__body'):
+                        while(i < len(fbody.find_all('p'))):
+                            fullcorpus += fbody.find_all('p')[i].get_text().strip()
+                            i += 1
+                    subtitle_corpus.append({'corpus':fullcorpus, 'site_origin':'folha_de_saopaulo'})
                 
+                ## Gazeta
+                i = 0
+                fullcorpus = ''
+                if any([index['link'] == response.url and index['site_origin'] == 'gazeta_do_povo' for index in url_subtitlebased]) and any([len(content['site_origin']) == 0 for content in subtitle_corpus]):
+                    for gaBody in soup.find_all(class_='wrapper'):
+                        while (i < len(gaBody.find_all('p'))):
+                            fullcorpus += gaBody.find_all('p')[i].get_text().strip()
+                            i += 1
+                    subtitle_corpus.append({'corpus': fullcorpus, 'site_origin':'gazeta_do_povo'})
+                
+                ## G1
+                i = 0
+                fullcorpus = ''
+                subtitle_g1link = []
+                if any([index['link'] == response.url and index['site_origin'] == 'g1' for index in url_subtitlebased]) and any([len(content['site_origin']) == 0 for content in subtitle_corpus]):
+                    for originalLink in soup.find('script'):
+                        if 'window.location.replace' in originalLink:
+                            subtitle_g1link.append({'g1_link':originalLink.format().rsplit('window.location.replace("')[1].rsplit('");')[0]})
+
+                    subtitle_g1_request = [grequests.get(g1_url['g1_link']) for g1_url in g1link] ## -> Os links do G1 tem um problema para serem feitos requests, pois acaba dando erro e nesse erro está o link correto
+                    g1_sub_response = grequests.map(subtitle_g1_request, size=1)
+
+                    for g1_response in g1_sub_response:
+                        print(f"get_corpus --> g1 / status_code: {g1_response.status_code}")
+                        soup = BeautifulSoup(g1_response.content, 'html.parser')
+
+                        for g1body in soup.find_all(class_='wall protected-content'):
+                            while (i < len(g1body.find_all('p'))):
+                                fullcorpus += g1body.find_all('p')[i].get_text().strip()
+                                i += 1
+                        subtitle_corpus.append({'corpus':fullcorpus, 'site_origin':'g1'})
+
+                ## Estadao
+                i = 0
+                fullcorpus = ''
+                if any([index['link'] == response.url and index['site_origin'] == 'estadao' for index in url_subtitlebased]) and any([len(content['site_origin']) == 0 for content in subtitle_corpus]):
+                    for estadobody in soup.find_all(class_='styles__ContentWrapperContainerStyled-sc-1ehbu6v-0'):
+                        while(i < len(estadobody.find_all('p'))):
+                            fullcorpus += estadobody.find_all('p')[i].get_text().strip()
+                            i += 1
+                    subtitle_corpus.append({'corpus': fullcorpus,'site_origin':'estadao'})
+                # print(list(filter(lambda x:x['site_origin'] == 'g1', subtitle_corpus))[0]['corpus'] if subtitle_corpus else [])
+                
+                for i in subtitle_corpus:
+                    print(i['corpus']) if i['site_origin'] == 'gazeta_do_povo' else []
             return {
                 'folha_de_saopaulo':{
-                    'title_based': {list(filter(lambda x:x['site_origin'] == 'folha_de_saopaulo', corpus))[0]['corpus'] if corpus else []},
-                    'subtitle_based': {}
+                    'title_based': list(filter(lambda x:x['site_origin'] == 'folha_de_saopaulo', corpus))[0]['corpus'] if corpus else [],
+                    'subtitle_based': list(filter(lambda x:x['site_origin'] == 'folha_de_saopaulo', subtitle_corpus))[0]['corpus'] if subtitle_corpus else []
                 },
                 'gazeta_do_povo':{ 
-                    'title_based': {
-                        list(filter(lambda x:x['site_origin'] == 'gazeta_do_povo', corpus))[0]['corpus'] if corpus else [],
-                    },
-                    'subtitle_based': {
-
-                    }
+                    'title_based': list(filter(lambda x:x['site_origin'] == 'gazeta_do_povo', corpus))[0]['corpus'] if corpus else [],
+                    'subtitle_based': list(filter(lambda x:x['site_origin'] == 'gazeta_do_povo', subtitle_corpus))[0]['corpus'] if subtitle_corpus else []
                 },
                 'g1': {
-                    'title_based': {
-                        list(filter(lambda x:x['site_origin'] == 'g1', corpus))[0]['corpus'] if corpus else [],
-                    },
-                    'subtitle_based': {
-
-                    }
+                    'title_based': list(filter(lambda x:x['site_origin'] == 'g1', corpus))[0]['corpus'] if corpus else [],
+                    'subtitle_based': list(filter(lambda x:x['site_origin'] == 'g1', subtitle_corpus))[0]['corpus'] if subtitle_corpus else [],
                 },
-                'estadao':{
-                    'title_based': {
-                        list(filter(lambda x:x['site_origin'] == 'estadao', corpus))[0]['corpus'] if corpus else []
-                    },
-                    'subtitle_based': {
-
-                    }
-                }
+                # 'estadao':{
+                #     'title_based': list(filter(lambda x:x['site_origin'] == 'estadao', corpus))[0]['corpus'] if corpus else [],
+                #     'subtitle_based': list(filter(lambda x:x['site_origin'] == 'estadao', subtitle_corpus))[0]['corpus'] if subtitle_corpus else [],
+                # }
             }
         except Exception as e:
             print('ou sera aqui?')
-            print(e)
             return e
 
     # def GetContentGoogleSearch (self, url):
