@@ -11,10 +11,11 @@ def home():
 def webscrapping():
     if request.json != {}:
         try:
-            sentimentAnalisys = sc(request.json['userQuery']).SentimentAnalisys()
+            # sentimentAnalisys = sc(request.json['userQuery']).SentimentAnalisys()
             # GetCorpus = sc(request.json['userQuery']).GetCorpus()
             # Similarity = sc(request.json['userQuery']).GetSimilarity()
             # GetData = sc(request.json['userQuery']).GetData()
+            get_date = sc(request.json['userQuery']).get_date()
             print(request.headers)
             # return {
             #     'Analise_de_Sentimento': sentimentAnalisys,
@@ -22,7 +23,7 @@ def webscrapping():
             #     'Similarity': Similarity,
             #     'Getdata': GetData
             # }
-            return sentimentAnalisys
+            return get_date
         except Exception as e:
             print('app')
             print(e)

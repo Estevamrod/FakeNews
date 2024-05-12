@@ -17,13 +17,13 @@ class Scraper:
             'https://g1.globo.com/busca/?order=recent&species=notícias&', 
             #G1
             
-            'https://search.folha.uol.com.br/?site=todos&',
+            'https://search.folha.uol.com.br/?periodo=mes&site=todos&',
             # Folha de São Paulo
 
-            'https://www.gazetadopovo.com.br/busca/?',
+            'https://www.gazetadopovo.com.br/busca/?sort=newest&period=last-year&',
             # Gazeta do Povo
 
-            'https://busca.estadao.com.br/?',
+            'https://busca.estadao.com.br/?tipo_conteudo=Todos&quando=no-ultimo-mes&',
             # Estadao   
         ]
 
@@ -32,7 +32,7 @@ class Scraper:
             req = [grequests.get(str(url) + 'q=' + self.newstoSearch.replace(" ", "+")) for url in searchEngineStandart]
             responses = grequests.map(req, size=2)
             for response in responses:
-                print(f"status_code:{response.status_code}")
+                print(f"get_data: {response.status_code}")
                 soup = BeautifulSoup(response.content, 'html.parser')
 
                 ##inicio g1 
@@ -160,7 +160,7 @@ class Scraper:
             for gpSubtitulo in response['gazeta_do_povo']:
                 s2 = nlp(gpSubtitulo['dados']['subtitulo'])
 
-                gazetaSimilar[i]['similaridade']['subtitulo'] = f"{round(s1.similarity(s2)* 100, 2)}"
+                gazetaSimilar[i]['similaridade']['subtitulo'] = f"{round(s1.similarity(s2)* 100, 2)}%"
                 gazetaSimilar[i]['similaridade']['subtitulo_original'] = gpSubtitulo['dados']['subtitulo']
                 i += 1
 
@@ -175,7 +175,7 @@ class Scraper:
             i = 0
             for estadaoSubtitulo in response['estadao']:
                 s2 = nlp(estadaoSubtitulo['dados']['subtitulo'])
-                estadaoSimilar[i]['similaridade']['subtitulo'] = f"{round(s1.similarity(s2)*100, 2)}"
+                estadaoSimilar[i]['similaridade']['subtitulo'] = f"{round(s1.similarity(s2)*100, 2)}%"
                 estadaoSimilar[i]['similaridade']['subtitulo_original'] = estadaoSubtitulo['dados']['subtitulo']
                 i+= 1
 
@@ -200,7 +200,7 @@ class Scraper:
         except Exception as e:
             print('achei?')
             print(e)
-            return e
+            return {'msg':'Ocorreu um erro ao tentar completar a ação. Por favor tente novamente!'}
     
     def SentimentAnalisys(self): ## Aqui analisaremos a emoção de cada texto, onde utilizaremos Neutro, Positivo e Negativo para avaliar
         nltk.download('vader_lexicon')
@@ -446,4 +446,124 @@ class Scraper:
             }
         except Exception as e:
             print('ou sera aqui?')
+            return e
+    
+    def get_date(self):
+        try:
+            content = self.GetSimilarity()
+            title_url = []
+            subtitle_url = []
+            date_corpus= []
+
+            for index in content:
+                title_url.append({'link':content[index]['titulo_mais_similar']['link_noticia'], 'site_origin':index})
+                subtitle_url.append({'link':content[index]['subtitulo_mais_similar']['link_noticia'], 'site_origin': index})
+
+            date_title_request = [grequests.get(link['link']) for link in title_url]
+            date_responses = grequests.map(date_title_request, size=4)
+            
+            date_sub_request = [grequests.get(link['link']) for link in subtitle_url]
+            date_sub_responses = grequests.map(date_sub_request, size=4)
+
+            # Primeiro comecaremos com o titulo
+
+            for response in date_responses:
+                print(f"title get_date: {response.status_code}")
+                soup = BeautifulSoup(response.content, 'html.parser')
+
+                #Folha de Sao Paulo
+                if (any([index['site_origin'] == 'folha_de_saopaulo' and index['to'] == 'title' for index in date_corpus]) == False) and any([index['link'] == response.url and index['site_origin'] == 'folha_de_saopaulo' for index in title_url]):
+                    for folha_date in soup.find(class_='c-more-options__published-date'):
+                        date_corpus.append({'datetime':folha_date.get_text().strip(), 'site_origin':'folha_de_saopaulo','to':'title', 'origin': response.url})
+
+                #Gazeta do povo
+                if (any([index['site_origin'] == 'gazeta_do_povo' and index['to'] == 'title' for index in date_corpus]) == False) and any([index['link'] == response.url and index['site_origin'] == 'gazeta_do_povo' for index in title_url]):
+                    for gazeta_date in soup.find(class_='wgt-date'):
+                        date_corpus.append({'datetime':gazeta_date.get_text().strip(), 'site_origin':'gazeta_do_povo','to':'title', 'origin': response.url})
+                
+                #G1
+                formatt_link = []
+                if (any([index['site_origin'] == 'g1' and index['to'] == 'title' for index in date_corpus]) == False) and any([index['link'] == response.url and index['site_origin'] == 'g1' for index in title_url]):
+                    for getscript in soup.find('script'):
+                        if 'window.location.replace' in getscript:
+                            formatt_link.append({'link':getscript.format().rsplit('window.location.replace("')[1].rsplit('");')[0]})
+                            
+                    g1format_rq = [grequests.get(link['link']) for link in formatt_link]
+                    g1format_res = grequests.map(g1format_rq, size=1)
+                    for g1response in g1format_res:
+                        print(f"title get_date g1 : {g1response.status_code}")
+                        soup = BeautifulSoup(g1response.content, 'html.parser')
+
+                        for g1date in soup.find(class_='content-publication-data__updated'):
+                            date_corpus.append({'datetime':g1date.find_next('time').get_text().strip(), 'site_origin':'g1', 'to':'title', 'origin': response.url})
+                            break
+
+                #Estadao
+                if (any([index['site_origin'] == 'estadao' and index['to'] == 'title' for index in date_corpus]) == False) and any([index['link'] == response.url and index['site_origin'] == 'estadao' for index in title_url]):
+                    for estadao_date in soup.find(class_='principal-dates'):
+                        date_corpus.append({'datetime':estadao_date.find_next('time').get_text().strip(), 'site_origin':'estadao', 'to':'title', 'origin': response.url})
+                        break
+            
+            # Agora realiza a busca pela as datas com base no subtitulo
+
+            for response in date_sub_responses:
+                print(f"subtitle get_data: {response.status_code}")
+                soup = BeautifulSoup(response.content, 'html.parser')
+
+                #Folha de sao paulo
+
+                if (any([index['site_origin'] == 'folha_de_saopaulo' and index['to'] == 'subtitle' for index in date_corpus]) == False) and any([index['link'] == response.url and index['site_origin'] == 'folha_de_saopaulo' for index in subtitle_url]):
+                    for folha_date in soup.find(class_='c-more-options__published-date'):
+                        date_corpus.append({'datetime':folha_date.get_text().strip(), 'site_origin':'folha_de_saopaulo','to':'subtitle', 'origin': response.url})
+                
+                #Gazeta do povo
+
+                if (any([index['site_origin'] == 'gazeta_do_povo' and index['to'] == 'subtitle' for index in date_corpus]) == False) and any([index['link'] == response.url and index['site_origin'] == 'gazeta_do_povo' for index in subtitle_url]):
+                    for gazeta_date in soup.find(class_='wgt-date'):
+                        date_corpus.append({'datetime':gazeta_date.get_text().strip(), 'site_origin':'gazeta_do_povo','to':'subtitle', 'origin': response.url})
+                
+                # G1
+
+                formatt_link_sub = []
+                if (any([index['site_origin'] == 'g1' and index['to'] == 'subtitle' for index in date_corpus]) == False) and any([index['link'] == response.url and index['site_origin'] == 'g1' for index in subtitle_url]):
+                    for getscript in soup.find('script'):
+                        if 'window.location.replace' in getscript:
+                            formatt_link_sub.append({'link':getscript.format().rsplit('window.location.replace("')[1].rsplit('");')[0]})
+                            
+                    g1formatsub_rq = [grequests.get(link['link']) for link in formatt_link_sub]
+                    g1formatsub_res = grequests.map(g1formatsub_rq, size=1)
+                    for g1response in g1formatsub_res:
+                        print(f"title get_date g1 : {g1response.status_code}")
+                        soup = BeautifulSoup(g1response.content, 'html.parser')
+
+                        for g1date in soup.find(class_='content-publication-data__updated'):
+                            date_corpus.append({'datetime':g1date.find_next('time').get_text().strip(), 'site_origin':'g1', 'to':'subtitle', 'origin': response.url})
+                            break
+
+                #Estadao
+                
+                if (any([index['site_origin'] == 'estadao' and index['to'] == 'subtitle' for index in date_corpus]) == False) and any([index['link'] == response.url and index['site_origin'] == 'estadao' for index in subtitle_url]):
+                    for estadao_date in soup.find(class_='principal-dates'):
+                        date_corpus.append({'datetime':estadao_date.find_next('time').get_text().strip(), 'site_origin':'estadao', 'to':'subtitle', 'origin': response.url})
+                        break
+            return {
+                'folha_de_saopaulo':{
+                    'title_based':list(filter(lambda x:x['site_origin'] == 'folha_de_saopaulo' and x['to'] == 'title', date_corpus))[0] if date_corpus else [],
+                    'subtitle_based':list(filter(lambda x:x['site_origin'] == 'folha_de_saopaulo' and x['to'] == 'subtitle',  date_corpus))[0] if date_corpus else []
+                },
+                'gazeta_do_povo':{
+                    'title_based':list(filter(lambda x:x['site_origin'] == 'gazeta_do_povo' and x['to'] == 'title', date_corpus))[0] if date_corpus else [],
+                    'subtitle_based':list(filter(lambda x:x['site_origin'] == 'gazeta_do_povo' and x['to'] == 'subtitle',  date_corpus))[0] if date_corpus else []
+                },
+                'g1':{
+                    'title_based':list(filter(lambda x:x['site_origin'] == 'g1' and x['to'] == 'title', date_corpus))[0] if date_corpus else [],
+                    'subtitle_based':list(filter(lambda x:x['site_origin'] == 'g1' and x['to'] == 'subtitle',  date_corpus))[0] if date_corpus else []
+                },
+                'estadao': {
+                    'title_based':list(filter(lambda x:x['site_origin'] == 'estadao' and x['to'] == 'title', date_corpus))[0] if date_corpus else [],
+                    'subtitle_based':list(filter(lambda x:x['site_origin'] == 'estadao' and x['to'] == 'subtitle',  date_corpus))[0] if date_corpus else []
+                }
+            }
+        except Exception as e:
+            print(e)
             return e
