@@ -31,6 +31,11 @@ class Scraper:
 
             req = [grequests.get(str(url) + 'q=' + self.newstoSearch.replace(" ", "+")) for url in searchEngineStandart]
             responses = grequests.map(req, size=2)
+            g1 = []
+            folha = []
+            estadao = []
+            gp = []
+
             for response in responses:
                 print(f"get_data: {response.status_code}")
                 soup = BeautifulSoup(response.content, 'html.parser')
@@ -107,6 +112,7 @@ class Scraper:
             }
         except Exception as e:
             print(e)
+            return {'msg':'não foi possível completar a tarefa, por favor tente novamente!'}
 
     def GetSimilarity(self): ## Após "pegar" as informações de um conjunto de notícias, precisamos agora análisar cada titulo e subtitulo para ver qual notícia é mais adequada com o que o usuário pesquisou
         similaridade = []
@@ -206,6 +212,9 @@ class Scraper:
         nltk.download('vader_lexicon')
         try:
             response = self.GetCorpus()
+            if response == []:
+                return []
+
             sentiment = []
 
             ## Folha de Sao Paulo
@@ -293,8 +302,11 @@ class Scraper:
             url_titlebased = []
 
             data = self.GetSimilarity()
-
+        
             for site_origin in data:
+                if data[site_origin]['titulo_mais_similar'] == [] and data[site_origin]['subtitulo_mais_similar'] == []:
+                    return []
+                
                 url_titlebased.append({'site_origin':site_origin, 'link': data[site_origin]['titulo_mais_similar']['link_noticia']})
                 url_subtitlebased.append({'site_origin': site_origin, 'link': data[site_origin]['subtitulo_mais_similar']['link_noticia']})
 
@@ -456,6 +468,9 @@ class Scraper:
             date_corpus= []
 
             for index in content:
+                if content[index]['titulo_mais_similar'] ==  [] and content[index]['subtitulo_mais_similar'] ==  []:
+                    return []
+
                 title_url.append({'link':content[index]['titulo_mais_similar']['link_noticia'], 'site_origin':index})
                 subtitle_url.append({'link':content[index]['subtitulo_mais_similar']['link_noticia'], 'site_origin': index})
 
