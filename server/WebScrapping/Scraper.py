@@ -437,7 +437,7 @@ class Scraper:
                             fullcorpus += estadobody.find_all('p')[i].get_text().strip()
                             i += 1
                     subtitle_corpus.append({'corpus': fullcorpus,'site_origin':'estadao'})
-            
+
             return {
                 'folha_de_saopaulo':{
                     'title_based': list(filter(lambda x:x['site_origin'] == 'folha_de_saopaulo', corpus))[0]['corpus'] if corpus else [],
