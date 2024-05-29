@@ -1,5 +1,6 @@
 from flask import Flask, request
 from Scraper import Scraper as sc
+import logging
 app = Flask(__name__)
 
 
@@ -49,11 +50,11 @@ def v1_corpus():
         return {'msg':'Você precisa realizar uma requisição com o conteúdo no body da página'},201
     try:
         get_corpus = sc(request.json['userQuery']).GetCorpus()
-        console.log(get_corpus)
         if get_corpus == []:
             return {'msg':'Ocorreu um erro ao finalizar a tarefa. Por favor tente novamente!'},201
         return get_corpus,200
     except Exception as e:
+        logging.exception('error')
         return e, 201
     
 @app.route('/v1/scraping/sentiment', methods=['POST'])

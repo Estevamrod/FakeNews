@@ -3,6 +3,7 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import grequests
 from bs4 import BeautifulSoup
 import spacy
+import logging
 
 class Scraper:
     def __init__(self, newstoSearch):
@@ -216,83 +217,79 @@ class Scraper:
                 return []
 
             sentiment = []
+            for i in response:
 
-            ## Folha de Sao Paulo
-            folha_title = response['folha_de_saopaulo']['title_based']
-            folha_sub = response['folha_de_saopaulo']['subtitle_based']
-            sentiment.append({'title':SentimentIntensityAnalyzer().polarity_scores(folha_title), 'subtitle': SentimentIntensityAnalyzer().polarity_scores(folha_sub), 'origin':'folha_de_saopaulo'})
-            
-            ## Gazeta do Povo
-            gazeta_title = response['gazeta_do_povo']['title_based']
-            gazeta_sub = response['gazeta_do_povo']['subtitle_based']
-            sentiment.append({'title':SentimentIntensityAnalyzer().polarity_scores(gazeta_title), 'subtitle': SentimentIntensityAnalyzer().polarity_scores(gazeta_sub), 'origin':'gazeta_do_povo'})
+                ## Folha de Sao Paulo
+                if i == 'folha_de_saopaulo' and (response[i]['title_based'] != [] and response[i]['subtitle_based'] != []):
+                    print(response[i]['title_based'])
+                    sentiment.append({'title':SentimentIntensityAnalyzer().polarity_scores(response[i]['title_based']), 'subtitle': SentimentIntensityAnalyzer().polarity_scores(response[i]['subtitle_based']), 'origin':'folha_de_saopaulo'})
 
-            ## G1
-            g1_title = response['g1']['title_based']
-            g1_sub = response['g1']['subtitle_based']
-            sentiment.append({'title':SentimentIntensityAnalyzer().polarity_scores(g1_title), 'subtitle': SentimentIntensityAnalyzer().polarity_scores(g1_sub), 'origin':'g1'})
+                ## Gazeta do Povo
+                if i == 'gazeta_do_povo' and (response[i]['title_based'] != [] and response[i]['subtitle_based'] != []):
+                    sentiment.append({'title':SentimentIntensityAnalyzer().polarity_scores(response[i]['title_based']), 'subtitle': SentimentIntensityAnalyzer().polarity_scores(response[i]['subtitle_based']), 'origin':'gazeta_do_povo'})
 
-            ## Estadao
+                ## G1
+                if i == 'g1' and (response[i]['title_based'] != [] and response[i]['subtitle_based'] != []):
+                    sentiment.append({'title':SentimentIntensityAnalyzer().polarity_scores(response[i]['title_based']), 'subtitle': SentimentIntensityAnalyzer().polarity_scores(response[i]['subtitle_based']), 'origin':'g1'})
 
-            estadao_title = response['estadao']['title_based']
-            estadao_sub = response['estadao']['subtitle_based']
-            sentiment.append({'title':SentimentIntensityAnalyzer().polarity_scores(estadao_title), 'subtitle': SentimentIntensityAnalyzer().polarity_scores(estadao_sub), 'origin':'estadao'})
+                ## Estadao
+                if i == 'estadao' and (response[i]['title_based'] != [] and response[i]['subtitle_based'] != []):
+                    sentiment.append({'title':SentimentIntensityAnalyzer().polarity_scores(response[i]['title_based']), 'subtitle': SentimentIntensityAnalyzer().polarity_scores(response[i]['subtitle_based']), 'origin':'estadao'})
 
             return {
                 'folha_de_saopaulo':{
                     'title_based': {
                         # 'negativo': f"{round(folhaCorpusSentiment['neg']*100,2)}%",
-                        'negativo': f"{round(list(filter(lambda x:x['origin'] == 'folha_de_saopaulo', sentiment))[0]['title']['neg']*100,2) if sentiment else []}%",
-                        'neutro': f"{round(list(filter(lambda x:x['origin'] == 'folha_de_saopaulo', sentiment))[0]['title']['neu']*100,2) if sentiment else []}%",
-                        'positivo': f"{round(list(filter(lambda x:x['origin'] == 'folha_de_saopaulo', sentiment))[0]['title']['pos']*100,2) if sentiment else []}%",
+                        'negativo': f"{round(list(filter(lambda x:x['origin'] == 'folha_de_saopaulo', sentiment))[0]['title']['neg']*100,2) if list(filter(lambda x:x['origin'] == 'folha_de_saopaulo', sentiment)) != [] else []}%",
+                        'neutro': f"{round(list(filter(lambda x:x['origin'] == 'folha_de_saopaulo', sentiment))[0]['title']['neu']*100,2) if list(filter(lambda x:x['origin'] == 'folha_de_saopaulo', sentiment)) != [] else []}%",
+                        'positivo': f"{round(list(filter(lambda x:x['origin'] == 'folha_de_saopaulo', sentiment))[0]['title']['pos']*100,2) if list(filter(lambda x:x['origin'] == 'folha_de_saopaulo', sentiment)) != [] else []}%",
                     },
                     'subtitle_based': {
-                        'negativo': f"{round(list(filter(lambda x:x['origin'] == 'folha_de_saopaulo', sentiment))[0]['subtitle']['neg']*100,2) if sentiment else []}%",
-                        'neutro': f"{round(list(filter(lambda x:x['origin'] == 'folha_de_saopaulo', sentiment))[0]['subtitle']['neu']*100,2) if sentiment else []}%",
-                        'positivo': f"{round(list(filter(lambda x:x['origin'] == 'folha_de_saopaulo', sentiment))[0]['subtitle']['pos']*100,2) if sentiment else []}%",
+                        'negativo': f"{round(list(filter(lambda x:x['origin'] == 'folha_de_saopaulo', sentiment))[0]['subtitle']['neg']*100,2) if list(filter(lambda x:x['origin'] == 'folha_de_saopaulo', sentiment)) != [] else []}%",
+                        'neutro': f"{round(list(filter(lambda x:x['origin'] == 'folha_de_saopaulo', sentiment))[0]['subtitle']['neu']*100,2) if list(filter(lambda x:x['origin'] == 'folha_de_saopaulo', sentiment)) != [] else []}%",
+                        'positivo': f"{round(list(filter(lambda x:x['origin'] == 'folha_de_saopaulo', sentiment))[0]['subtitle']['pos']*100,2) if list(filter(lambda x:x['origin'] == 'folha_de_saopaulo', sentiment)) != [] else []}%",
                     }
                 },
                 'gazeta_do_povo':{
                     'title_based': {
-                        'negativo': f"{round(list(filter(lambda x:x['origin'] == 'gazeta_do_povo', sentiment))[0]['title']['neg']*100,2) if sentiment else []}%",
-                        'neutro': f"{round(list(filter(lambda x:x['origin'] == 'gazeta_do_povo', sentiment))[0]['title']['neu']*100,2) if sentiment else []}%",
-                        'positivo': f"{round(list(filter(lambda x:x['origin'] == 'gazeta_do_povo', sentiment))[0]['title']['pos']*100,2) if sentiment else []}%",
+                        'negativo': f"{round(list(filter(lambda x:x['origin'] == 'gazeta_do_povo', sentiment))[0]['title']['neg']*100,2) if list(filter(lambda x:x['origin'] == 'gazeta_do_povo', sentiment)) != [] else []}%",
+                        'neutro': f"{round(list(filter(lambda x:x['origin'] == 'gazeta_do_povo', sentiment))[0]['title']['neu']*100,2) if list(filter(lambda x:x['origin'] == 'gazeta_do_povo', sentiment)) != [] else []}%",
+                        'positivo': f"{round(list(filter(lambda x:x['origin'] == 'gazeta_do_povo', sentiment))[0]['title']['pos']*100,2) if list(filter(lambda x:x['origin'] == 'gazeta_do_povo', sentiment)) != [] else []}%",
                     },
                     'subtitle_based':{
-                        'negativo': f"{round(list(filter(lambda x:x['origin'] == 'gazeta_do_povo', sentiment))[0]['subtitle']['neg']*100,2) if sentiment else []}%",
-                        'neutro': f"{round(list(filter(lambda x:x['origin'] == 'gazeta_do_povo', sentiment))[0]['subtitle']['neu']*100,2) if sentiment else []}%",
-                        'positivo': f"{round(list(filter(lambda x:x['origin'] == 'gazeta_do_povo', sentiment))[0]['subtitle']['pos']*100,2) if sentiment else []}%",
+                        'negativo': f"{round(list(filter(lambda x:x['origin'] == 'gazeta_do_povo', sentiment))[0]['subtitle']['neg']*100,2) if list(filter(lambda x:x['origin'] == 'gazeta_do_povo', sentiment)) != [] else []}%",
+                        'neutro': f"{round(list(filter(lambda x:x['origin'] == 'gazeta_do_povo', sentiment))[0]['subtitle']['neu']*100,2) if list(filter(lambda x:x['origin'] == 'gazeta_do_povo', sentiment)) != [] else []}%",
+                        'positivo': f"{round(list(filter(lambda x:x['origin'] == 'gazeta_do_povo', sentiment))[0]['subtitle']['pos']*100,2) if list(filter(lambda x:x['origin'] == 'gazeta_do_povo', sentiment)) != [] else []}%",
                     }
                 },
                 'g1': {
                     'title_based':{
-                        'negativo': f"{round(list(filter(lambda x:x['origin'] == 'g1', sentiment))[0]['title']['neg']*100,2) if sentiment else []}%",
-                        'neutro': f"{round(list(filter(lambda x:x['origin'] == 'g1', sentiment))[0]['title']['neu']*100,2) if sentiment else []}%",
-                        'positivo': f"{round(list(filter(lambda x:x['origin'] == 'g1', sentiment))[0]['title']['pos']*100,2) if sentiment else []}%",
+                        'negativo': f"{round(list(filter(lambda x:x['origin'] == 'g1', sentiment))[0]['title']['neg']*100,2) if list(filter(lambda x:x['origin'] == 'g1', sentiment)) != [] else []}%",
+                        'neutro': f"{round(list(filter(lambda x:x['origin'] == 'g1', sentiment))[0]['title']['neu']*100,2) if list(filter(lambda x:x['origin'] == 'g1', sentiment)) != [] else []}%",
+                        'positivo': f"{round(list(filter(lambda x:x['origin'] == 'g1', sentiment))[0]['title']['pos']*100,2) if list(filter(lambda x:x['origin'] == 'g1', sentiment)) != [] else []}%",
                     },
                     'subtitle_based':{
-                        'negativo': f"{round(list(filter(lambda x:x['origin'] == 'g1', sentiment))[0]['subtitle']['neg']*100,2) if sentiment else []}%",
-                        'neutro': f"{round(list(filter(lambda x:x['origin'] == 'g1', sentiment))[0]['subtitle']['neu']*100,2) if sentiment else []}%",
-                        'positivo': f"{round(list(filter(lambda x:x['origin'] == 'g1', sentiment))[0]['subtitle']['pos']*100,2) if sentiment else []}%",
+                        'negativo': f"{round(list(filter(lambda x:x['origin'] == 'g1', sentiment))[0]['subtitle']['neg']*100,2) if list(filter(lambda x:x['origin'] == 'g1', sentiment)) != [] else []}%",
+                        'neutro': f"{round(list(filter(lambda x:x['origin'] == 'g1', sentiment))[0]['subtitle']['neu']*100,2) if list(filter(lambda x:x['origin'] == 'g1', sentiment)) != [] else []}%",
+                        'positivo': f"{round(list(filter(lambda x:x['origin'] == 'g1', sentiment))[0]['subtitle']['pos']*100,2) if list(filter(lambda x:x['origin'] == 'g1', sentiment)) != [] else []}%",
                     }
                 },
                 'estadao': {
                     'title_based':{
-                        'negativo': f"{round(list(filter(lambda x:x['origin'] == 'estadao', sentiment))[0]['title']['neg']*100,2) if sentiment else []}%",
-                        'neutro': f"{round(list(filter(lambda x:x['origin'] == 'estadao', sentiment))[0]['title']['neu']*100,2) if sentiment else []}%",
-                        'positivo': f"{round(list(filter(lambda x:x['origin'] == 'estadao', sentiment))[0]['title']['pos']*100,2) if sentiment else []}%",
+                        'negativo': f"{round(list(filter(lambda x:x['origin'] == 'estadao', sentiment))[0]['title']['neg']*100,2) if list(filter(lambda x:x['origin'] == 'estadao', sentiment)) != [] else []}%",
+                        'neutro': f"{round(list(filter(lambda x:x['origin'] == 'estadao', sentiment))[0]['title']['neu']*100,2) if list(filter(lambda x:x['origin'] == 'estadao', sentiment)) != [] else []}%",
+                        'positivo': f"{round(list(filter(lambda x:x['origin'] == 'estadao', sentiment))[0]['title']['pos']*100,2) if list(filter(lambda x:x['origin'] == 'estadao', sentiment)) != [] else []}%",
                     },
                     'subtitle_based':{
-                        'negativo': f"{round(list(filter(lambda x:x['origin'] == 'estadao', sentiment))[0]['subtitle']['neg']*100,2) if sentiment else []}%",
-                        'neutro': f"{round(list(filter(lambda x:x['origin'] == 'estadao', sentiment))[0]['subtitle']['neu']*100,2) if sentiment else []}%",
-                        'positivo': f"{round(list(filter(lambda x:x['origin'] == 'estadao', sentiment))[0]['subtitle']['pos']*100,2) if sentiment else []}%",
+                        'negativo': f"{round(list(filter(lambda x:x['origin'] == 'estadao', sentiment))[0]['subtitle']['neg']*100,2) if list(filter(lambda x:x['origin'] == 'estadao', sentiment)) != [] else []}%",
+                        'neutro': f"{round(list(filter(lambda x:x['origin'] == 'estadao', sentiment))[0]['subtitle']['neu']*100,2) if list(filter(lambda x:x['origin'] == 'estadao', sentiment)) != [] else []}%",
+                        'positivo': f"{round(list(filter(lambda x:x['origin'] == 'estadao', sentiment))[0]['subtitle']['pos']*100,2) if list(filter(lambda x:x['origin'] == 'estadao', sentiment)) != [] else []}%",
                     }
                 }
             }
         except Exception as e:
-            print('aqui 2')
-            print(e)
-            return e
+            logging.exception('error')
+            return 'error'
     
     def GetCorpus(self): ## Aqui pegamos o corpo da notícia que é mais adequada com o que se é pesquisado pelo usuário
         try:
@@ -304,11 +301,9 @@ class Scraper:
             data = self.GetSimilarity()
         
             for site_origin in data:
-                if data[site_origin]['titulo_mais_similar'] == [] and data[site_origin]['subtitulo_mais_similar'] == []:
-                    return []
-                
-                url_titlebased.append({'site_origin':site_origin, 'link': data[site_origin]['titulo_mais_similar']['link_noticia']})
-                url_subtitlebased.append({'site_origin': site_origin, 'link': data[site_origin]['subtitulo_mais_similar']['link_noticia']})
+                if data[site_origin]['titulo_mais_similar'] != [] and data[site_origin]['subtitulo_mais_similar'] != []:
+                    url_titlebased.append({'site_origin':site_origin, 'link': data[site_origin]['titulo_mais_similar']['link_noticia']})
+                    url_subtitlebased.append({'site_origin': site_origin, 'link': data[site_origin]['subtitulo_mais_similar']['link_noticia']})
 
             ## Start first with title link's based
 
@@ -440,25 +435,25 @@ class Scraper:
 
             return {
                 'folha_de_saopaulo':{
-                    'title_based': list(filter(lambda x:x['site_origin'] == 'folha_de_saopaulo', corpus))[0]['corpus'] if corpus else [],
-                    'subtitle_based': list(filter(lambda x:x['site_origin'] == 'folha_de_saopaulo', subtitle_corpus))[0]['corpus'] if subtitle_corpus else []
+                    'title_based': list(filter(lambda x:x['site_origin'] == 'folha_de_saopaulo', corpus))[0]['corpus'] if  list(filter(lambda x:x['site_origin'] == 'folha_de_saopaulo', corpus)) != [] else [],
+                    'subtitle_based': list(filter(lambda x:x['site_origin'] == 'folha_de_saopaulo', subtitle_corpus))[0]['corpus'] if list(filter(lambda x:x['site_origin'] == 'folha_de_saopaulo', subtitle_corpus)) != []  else []
                 },
                 'gazeta_do_povo':{ 
-                    'title_based': list(filter(lambda x:x['site_origin'] == 'gazeta_do_povo', corpus))[0]['corpus'] if corpus else [],
-                    'subtitle_based': list(filter(lambda x:x['site_origin'] == 'gazeta_do_povo', subtitle_corpus))[0]['corpus'] if subtitle_corpus else []
+                    'title_based': list(filter(lambda x:x['site_origin'] == 'gazeta_do_povo', corpus))[0]['corpus'] if  list(filter(lambda x:x['site_origin'] == 'gazeta_do_povo', corpus)) != [] else [],
+                    'subtitle_based': list(filter(lambda x:x['site_origin'] == 'gazeta_do_povo', subtitle_corpus))[0]['corpus'] if list(filter(lambda x:x['site_origin'] == 'gazeta_do_povo', subtitle_corpus)) != [] else []
                 },
                 'g1': {
-                    'title_based': list(filter(lambda x:x['site_origin'] == 'g1', corpus))[0]['corpus'] if corpus else [],
-                    'subtitle_based': list(filter(lambda x:x['site_origin'] == 'g1', subtitle_corpus))[0]['corpus'] if subtitle_corpus else [],
+                    'title_based': list(filter(lambda x:x['site_origin'] == 'g1', corpus))[0]['corpus'] if  list(filter(lambda x:x['site_origin'] == 'g1', corpus)) != []  else [],
+                    'subtitle_based': list(filter(lambda x:x['site_origin'] == 'g1', subtitle_corpus))[0]['corpus'] if  list(filter(lambda x:x['site_origin'] == 'g1', subtitle_corpus)) != [] else [],
                 },
                 'estadao':{
-                    'title_based': list(filter(lambda x:x['site_origin'] == 'estadao', corpus))[0]['corpus'] if corpus else [],
-                    'subtitle_based': list(filter(lambda x:x['site_origin'] == 'estadao', subtitle_corpus))[0]['corpus'] if subtitle_corpus else [],
+                    'title_based': list(filter(lambda x:x['site_origin'] == 'estadao', corpus))[0]['corpus'] if list(filter(lambda x:x['site_origin'] == 'estadao', corpus)) != []  else [],
+                    'subtitle_based': list(filter(lambda x:x['site_origin'] == 'estadao', subtitle_corpus))[0]['corpus'] if  list(filter(lambda x:x['site_origin'] == 'estadao', subtitle_corpus)) != []  else [],
                 }
             }
         except Exception as e:
-            print('ou sera aqui?')
-            return e
+            logging.exception('erro')
+            return 'error',201
     
     def get_date(self):
         try:
@@ -468,11 +463,9 @@ class Scraper:
             date_corpus= []
 
             for index in content:
-                if content[index]['titulo_mais_similar'] ==  [] and content[index]['subtitulo_mais_similar'] ==  []:
-                    return []
-
-                title_url.append({'link':content[index]['titulo_mais_similar']['link_noticia'], 'site_origin':index})
-                subtitle_url.append({'link':content[index]['subtitulo_mais_similar']['link_noticia'], 'site_origin': index})
+                if content[index]['titulo_mais_similar'] !=  [] and content[index]['subtitulo_mais_similar'] !=  []:
+                    title_url.append({'link':content[index]['titulo_mais_similar']['link_noticia'], 'site_origin':index})
+                    subtitle_url.append({'link':content[index]['subtitulo_mais_similar']['link_noticia'], 'site_origin': index})
 
             date_title_request = [grequests.get(link['link']) for link in title_url]
             date_responses = grequests.map(date_title_request, size=4)
@@ -563,20 +556,20 @@ class Scraper:
                         break
             return {
                 'folha_de_saopaulo':{
-                    'title_based':list(filter(lambda x:x['site_origin'] == 'folha_de_saopaulo' and x['to'] == 'title', date_corpus))[0] if date_corpus else [],
-                    'subtitle_based':list(filter(lambda x:x['site_origin'] == 'folha_de_saopaulo' and x['to'] == 'subtitle',  date_corpus))[0] if date_corpus else []
+                    'title_based':list(filter(lambda x:x['site_origin'] == 'folha_de_saopaulo' and x['to'] == 'title', date_corpus))[0] if list(filter(lambda x:x['site_origin'] == 'folha_de_saopaulo' and x['to'] == 'title', date_corpus)) != [] else [],
+                    'subtitle_based':list(filter(lambda x:x['site_origin'] == 'folha_de_saopaulo' and x['to'] == 'subtitle',  date_corpus))[0] if list(filter(lambda x:x['site_origin'] == 'folha_de_saopaulo' and x['to'] == 'subtitle',  date_corpus)) != [] else []
                 },
                 'gazeta_do_povo':{
-                    'title_based':list(filter(lambda x:x['site_origin'] == 'gazeta_do_povo' and x['to'] == 'title', date_corpus))[0] if date_corpus else [],
-                    'subtitle_based':list(filter(lambda x:x['site_origin'] == 'gazeta_do_povo' and x['to'] == 'subtitle',  date_corpus))[0] if date_corpus else []
+                    'title_based':list(filter(lambda x:x['site_origin'] == 'gazeta_do_povo' and x['to'] == 'title', date_corpus))[0] if list(filter(lambda x:x['site_origin'] == 'gazeta_do_povo' and x['to'] == 'title', date_corpus)) != [] else [],
+                    'subtitle_based':list(filter(lambda x:x['site_origin'] == 'gazeta_do_povo' and x['to'] == 'subtitle',  date_corpus))[0] if list(filter(lambda x:x['site_origin'] == 'gazeta_do_povo' and x['to'] == 'subtitle',  date_corpus)) != [] else []
                 },
                 'g1':{
-                    'title_based':list(filter(lambda x:x['site_origin'] == 'g1' and x['to'] == 'title', date_corpus))[0] if date_corpus else [],
-                    'subtitle_based':list(filter(lambda x:x['site_origin'] == 'g1' and x['to'] == 'subtitle',  date_corpus))[0] if date_corpus else []
+                    'title_based':list(filter(lambda x:x['site_origin'] == 'g1' and x['to'] == 'title', date_corpus))[0] if list(filter(lambda x:x['site_origin'] == 'g1' and x['to'] == 'title', date_corpus)) != [] else [],
+                    'subtitle_based':list(filter(lambda x:x['site_origin'] == 'g1' and x['to'] == 'subtitle',  date_corpus))[0] if list(filter(lambda x:x['site_origin'] == 'g1' and x['to'] == 'subtitle',  date_corpus)) != [] else []
                 },
                 'estadao': {
-                    'title_based':list(filter(lambda x:x['site_origin'] == 'estadao' and x['to'] == 'title', date_corpus))[0] if date_corpus else [],
-                    'subtitle_based':list(filter(lambda x:x['site_origin'] == 'estadao' and x['to'] == 'subtitle',  date_corpus))[0] if date_corpus else []
+                    'title_based':list(filter(lambda x:x['site_origin'] == 'estadao' and x['to'] == 'title', date_corpus))[0] if list(filter(lambda x:x['site_origin'] == 'estadao' and x['to'] == 'title', date_corpus)) != [] else [],
+                    'subtitle_based':list(filter(lambda x:x['site_origin'] == 'estadao' and x['to'] == 'subtitle',  date_corpus))[0] if list(filter(lambda x:x['site_origin'] == 'estadao' and x['to'] == 'subtitle',  date_corpus)) != [] else []
                 }
             }
         except Exception as e:
