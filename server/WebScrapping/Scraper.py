@@ -112,8 +112,9 @@ class Scraper:
                 'estadao': estadao,
             }
         except Exception as e:
-            print(e)
-            return {'msg':'não foi possível completar a tarefa, por favor tente novamente!'}
+            logging.exception('error')
+        except:
+            return {'msg':'Houve um erro ao tentar finalizar a solicitacao! Por favor tente novamente!', 'function':'GetData'},201
 
     def GetSimilarity(self): ## Após "pegar" as informações de um conjunto de notícias, precisamos agora análisar cada titulo e subtitulo para ver qual notícia é mais adequada com o que o usuário pesquisou
         similaridade = []
@@ -205,9 +206,9 @@ class Scraper:
                 }
             }
         except Exception as e:
-            print('achei?')
-            print(e)
-            return {'msg':'Ocorreu um erro ao tentar completar a ação. Por favor tente novamente!'}
+            logging.exception('error')
+        except:
+            return {'msg':'Houve um erro ao tentar finalizar a solicitacao! Por favor tente novamente!', 'function':'GetSimilarity'},201
     
     def SentimentAnalisys(self): ## Aqui analisaremos a emoção de cada texto, onde utilizaremos Neutro, Positivo e Negativo para avaliar
         nltk.download('vader_lexicon')
@@ -289,7 +290,8 @@ class Scraper:
             }
         except Exception as e:
             logging.exception('error')
-            return 'error'
+        except:
+            return {'msg':'Houve um erro ao tentar finalizar a solicitacao! Por favor tente novamente!', 'function':'sentiment'},201
     
     def GetCorpus(self): ## Aqui pegamos o corpo da notícia que é mais adequada com o que se é pesquisado pelo usuário
         try:
@@ -453,9 +455,10 @@ class Scraper:
             }
         except Exception as e:
             logging.exception('erro')
-            return 'error',201
+        except:
+            return {'msg':'Houve um erro ao tentar finalizar a solicitacao! Por favor tente novamente!', 'function':'GetCorpus'},201
     
-    def get_date(self):
+    def Getdate(self):
         try:
             content = self.GetSimilarity()
             title_url = []
@@ -573,5 +576,7 @@ class Scraper:
                 }
             }
         except Exception as e:
-            print(e)
-            return e
+            logging.exception('error')
+        except:
+            return {'msg':'Houve um erro ao tentar finalizar a solicitacao! Por favor tente novamente!', 'function':'Getdate'},201
+

@@ -77,7 +77,7 @@ def v1_date():
     if request.json == {}:
         return {'msg':'Você precisa realizar uma requisição com o conteúdo no body da página'},201
     try:
-        get_date = sc(request.json['userQuery']).get_date()
+        get_date = sc(request.json['userQuery']).Getdate()
         if get_date == []:
             return {'msg':'Ocorreu um erro ao finalizar a tarefa. Por favor tente novamente!'},201
         return get_date,200
