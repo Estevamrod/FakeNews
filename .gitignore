@@ -36,5 +36,8 @@ client/.vercel
 client/*.tsbuildinfo
 client/next-env.d.ts
 
+<<<<<<< HEAD
 #testes
+=======
+>>>>>>> bugfix/getdate
 /teste.py
