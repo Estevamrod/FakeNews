@@ -482,12 +482,14 @@ class Scraper:
                 #Folha de Sao Paulo
                 if (any([index['site_origin'] == 'folha_de_saopaulo' and index['to'] == 'title' for index in date_corpus]) == False) and any([index['link'] == response.url and index['site_origin'] == 'folha_de_saopaulo' for index in title_url]):
                     for folha_date in soup.find(class_='c-more-options__published-date'):
-                        date_corpus.append({'datetime':folha_date.get_text().strip(), 'site_origin':'folha_de_saopaulo','to':'title', 'origin': response.url})
+                        if folha_date.get_text().strip().isalpha() == False:
+                            date_corpus.append({'datetime':folha_date.get_text().strip(), 'site_origin':'folha_de_saopaulo','to':'title', 'origin': response.url})
 
                 #Gazeta do povo
                 if (any([index['site_origin'] == 'gazeta_do_povo' and index['to'] == 'title' for index in date_corpus]) == False) and any([index['link'] == response.url and index['site_origin'] == 'gazeta_do_povo' for index in title_url]):
                     for gazeta_date in soup.find(class_='wgt-date'):
-                        date_corpus.append({'datetime':gazeta_date.get_text().strip(), 'site_origin':'gazeta_do_povo','to':'title', 'origin': response.url})
+                        if gazeta_date.get_text().strip().isalpha() == False:
+                            date_corpus.append({'datetime':gazeta_date.get_text().strip(), 'site_origin':'gazeta_do_povo','to':'title', 'origin': response.url})
                 
                 #G1
                 formatt_link = []
@@ -503,14 +505,16 @@ class Scraper:
                         soup = BeautifulSoup(g1response.content, 'html.parser')
 
                         for g1date in soup.find(class_='content-publication-data__updated'):
-                            date_corpus.append({'datetime':g1date.find_next('time').get_text().strip(), 'site_origin':'g1', 'to':'title', 'origin': response.url})
-                            break
+                            if g1date.find_next('time').get_text().strip().isalpha() == False:
+                                date_corpus.append({'datetime':g1date.find_next('time').get_text().strip(), 'site_origin':'g1', 'to':'title', 'origin': response.url})
+                                break
 
                 #Estadao
                 if (any([index['site_origin'] == 'estadao' and index['to'] == 'title' for index in date_corpus]) == False) and any([index['link'] == response.url and index['site_origin'] == 'estadao' for index in title_url]):
                     for estadao_date in soup.find(class_='principal-dates'):
-                        date_corpus.append({'datetime':estadao_date.find_next('time').get_text().strip(), 'site_origin':'estadao', 'to':'title', 'origin': response.url})
-                        break
+                        if estadao_date.find_next('time').get_text().strip().isalpha() == False:
+                            date_corpus.append({'datetime':estadao_date.find_next('time').get_text().strip(), 'site_origin':'estadao', 'to':'title', 'origin': response.url})
+                            break
             
             # Agora realiza a busca pela as datas com base no subtitulo
 
@@ -522,13 +526,15 @@ class Scraper:
 
                 if (any([index['site_origin'] == 'folha_de_saopaulo' and index['to'] == 'subtitle' for index in date_corpus]) == False) and any([index['link'] == response.url and index['site_origin'] == 'folha_de_saopaulo' for index in subtitle_url]):
                     for folha_date in soup.find(class_='c-more-options__published-date'):
-                        date_corpus.append({'datetime':folha_date.get_text().strip(), 'site_origin':'folha_de_saopaulo','to':'subtitle', 'origin': response.url})
+                        if folha_date.get_text().strip().isalpha() == False:
+                            date_corpus.append({'datetime':folha_date.get_text().strip(), 'site_origin':'folha_de_saopaulo','to':'subtitle', 'origin': response.url})
                 
                 #Gazeta do povo
 
                 if (any([index['site_origin'] == 'gazeta_do_povo' and index['to'] == 'subtitle' for index in date_corpus]) == False) and any([index['link'] == response.url and index['site_origin'] == 'gazeta_do_povo' for index in subtitle_url]):
                     for gazeta_date in soup.find(class_='wgt-date'):
-                        date_corpus.append({'datetime':gazeta_date.get_text().strip(), 'site_origin':'gazeta_do_povo','to':'subtitle', 'origin': response.url})
+                        if gazeta_date.get_text().strip().isalpha() == False:
+                            date_corpus.append({'datetime':gazeta_date.get_text().strip(), 'site_origin':'gazeta_do_povo','to':'subtitle', 'origin': response.url})
                 
                 # G1
 
@@ -545,15 +551,17 @@ class Scraper:
                         soup = BeautifulSoup(g1response.content, 'html.parser')
 
                         for g1date in soup.find(class_='content-publication-data__updated'):
-                            date_corpus.append({'datetime':g1date.find_next('time').get_text().strip(), 'site_origin':'g1', 'to':'subtitle', 'origin': response.url})
-                            break
+                            if g1date.find_next('time').get_text().strip().isalpha() == False:
+                                date_corpus.append({'datetime':g1date.find_next('time').get_text().strip(), 'site_origin':'g1', 'to':'subtitle', 'origin': response.url})
+                                break
 
                 #Estadao
                 
                 if (any([index['site_origin'] == 'estadao' and index['to'] == 'subtitle' for index in date_corpus]) == False) and any([index['link'] == response.url and index['site_origin'] == 'estadao' for index in subtitle_url]):
                     for estadao_date in soup.find(class_='principal-dates'):
-                        date_corpus.append({'datetime':estadao_date.find_next('time').get_text().strip(), 'site_origin':'estadao', 'to':'subtitle', 'origin': response.url})
-                        break
+                        if estadao_date.find_next('time').get_text().strip().isalpha() == False:
+                            date_corpus.append({'datetime':estadao_date.find_next('time').get_text().strip(), 'site_origin':'estadao', 'to':'subtitle', 'origin': response.url})
+                            break
             return {
                 'folha_de_saopaulo':{
                     'title_based':list(filter(lambda x:x['site_origin'] == 'folha_de_saopaulo' and x['to'] == 'title', date_corpus))[0] if list(filter(lambda x:x['site_origin'] == 'folha_de_saopaulo' and x['to'] == 'title', date_corpus)) != [] else [],
