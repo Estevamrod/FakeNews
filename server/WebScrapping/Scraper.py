@@ -118,6 +118,8 @@ class Scraper:
 
     def GetSimilarity(self): ## Após "pegar" as informações de um conjunto de notícias, precisamos agora análisar cada titulo e subtitulo para ver qual notícia é mais adequada com o que o usuário pesquisou
         similaridade = []
+        rate = []
+        most_rated = {}
 
         try:
             response = self.GetData()
@@ -129,14 +131,14 @@ class Scraper:
 
             for gTitulo in response['g1']:
                 s2 = nlp(gTitulo['dados']['titulo'])
-                similaridade.append({'similaridade':{'titulo': f"{round(s1.similarity(s2)*100, 2)}%", 'titulo_original': gTitulo['dados']['titulo'], 'link_noticia': gTitulo['dados']['link']}, 'site_name':'g1'})
+                similaridade.append({'similaridade':{'titulo': round(s1.similarity(s2)*100, 2), 'titulo_original': gTitulo['dados']['titulo'], 'link_noticia': gTitulo['dados']['link']}, 'site_name':'g1'})
 
             g1Similar = list(filter(lambda x: x['site_name'] == 'g1', similaridade))
             i = 0
             for gSubtitulo in response['g1']:
                 s2 = nlp(gSubtitulo['dados']['subtitulo'])
 
-                g1Similar[i]['similaridade']['subtitulo'] = f"{round(s1.similarity(s2)*100, 2)}%"
+                g1Similar[i]['similaridade']['subtitulo'] = round(s1.similarity(s2)*100, 2)
                 g1Similar[i]['similaridade']['subtitulo_original'] = gSubtitulo['dados']['subtitulo']
                 i += 1
 
@@ -145,14 +147,14 @@ class Scraper:
             
             for fTitulo in response['folha_de_sao_paulo']:
                 s2 = nlp(fTitulo['dados']['titulo'])
-                similaridade.append({'similaridade':{'titulo': f"{round(s1.similarity(s2)*100, 2)}%", 'titulo_original': fTitulo['dados']['titulo'], 'link_noticia': fTitulo['dados']['link']}, 'site_name':'folha_de_sao_paulo'})
+                similaridade.append({'similaridade':{'titulo': round(s1.similarity(s2)*100, 2), 'titulo_original': fTitulo['dados']['titulo'], 'link_noticia': fTitulo['dados']['link']}, 'site_name':'folha_de_sao_paulo'})
 
             folhaSimiliar = list(filter(lambda x: x['site_name'] == 'folha_de_sao_paulo', similaridade))
             i=0
             for fSubtitulo in response['folha_de_sao_paulo']:
                 s2 = nlp(fSubtitulo['dados']['subtitulo'])
 
-                folhaSimiliar[i]['similaridade']['subtitulo'] = f"{round(s1.similarity(s2)*100, 2)}%"
+                folhaSimiliar[i]['similaridade']['subtitulo'] = round(s1.similarity(s2)*100, 2)
                 folhaSimiliar[i]['similaridade']['subtitulo_original'] = fSubtitulo['dados']['subtitulo']
                 i += 1
 
@@ -161,14 +163,14 @@ class Scraper:
 
             for gpTitulo in response['gazeta_do_povo']:
                 s2 = nlp(gpTitulo['dados']['titulo'])
-                similaridade.append({'similaridade':{'titulo': f"{round(s1.similarity(s2)*100, 2)}%", 'titulo_original': gpTitulo['dados']['titulo'], 'link_noticia': gpTitulo['dados']['link']}, 'site_name':'gazeta_do_povo'})
+                similaridade.append({'similaridade':{'titulo': round(s1.similarity(s2)*100, 2), 'titulo_original': gpTitulo['dados']['titulo'], 'link_noticia': gpTitulo['dados']['link']}, 'site_name':'gazeta_do_povo'})
             
             gazetaSimilar = list(filter(lambda x:x['site_name'] == 'gazeta_do_povo', similaridade))
             i = 0
             for gpSubtitulo in response['gazeta_do_povo']:
                 s2 = nlp(gpSubtitulo['dados']['subtitulo'])
 
-                gazetaSimilar[i]['similaridade']['subtitulo'] = f"{round(s1.similarity(s2)* 100, 2)}%"
+                gazetaSimilar[i]['similaridade']['subtitulo'] = round(s1.similarity(s2)* 100, 2)
                 gazetaSimilar[i]['similaridade']['subtitulo_original'] = gpSubtitulo['dados']['subtitulo']
                 i += 1
 
@@ -177,37 +179,79 @@ class Scraper:
             
             for estadaotitulo in response['estadao']:
                 s2 = nlp(estadaotitulo['dados']['titulo'])
-                similaridade.append({'similaridade':{'titulo': f"{round(s1.similarity(s2)*100, 2)}%", 'titulo_original': estadaotitulo['dados']['titulo'], 'link_noticia': estadaotitulo['dados']['link']}, 'site_name':'estadao'})
+                similaridade.append({'similaridade':{'titulo': round(s1.similarity(s2)*100, 2), 'titulo_original': estadaotitulo['dados']['titulo'], 'link_noticia': estadaotitulo['dados']['link']}, 'site_name':'estadao'})
             
             estadaoSimilar = list(filter(lambda x:x['site_name'] == 'estadao', similaridade))
             i = 0
             for estadaoSubtitulo in response['estadao']:
                 s2 = nlp(estadaoSubtitulo['dados']['subtitulo'])
-                estadaoSimilar[i]['similaridade']['subtitulo'] = f"{round(s1.similarity(s2)*100, 2)}%"
+                estadaoSimilar[i]['similaridade']['subtitulo'] = round(s1.similarity(s2)*100, 2)
                 estadaoSimilar[i]['similaridade']['subtitulo_original'] = estadaoSubtitulo['dados']['subtitulo']
                 i+= 1
+            
+            ## Similarity simplification
 
-            return {
-                'folha_de_saopaulo': {
-                    'titulo_mais_similar': [] if folhaSimiliar  == [] else max(folhaSimiliar, key=lambda x: x['similaridade']['titulo'])['similaridade'],
-                    'subtitulo_mais_similar': [] if folhaSimiliar == [] else max(folhaSimiliar, key=lambda x: x['similaridade']['subtitulo'])['similaridade']
+            rate.append({  ## Pega a média entre as porcentagens para gerar apenas um valor de similaridade entre as duas notícias de cada site
+                'folha_de_saopaulo':{
+                    'titulo': round((max(folhaSimiliar, key=lambda x: x['similaridade']['titulo'])['similaridade']['titulo'] + max(folhaSimiliar, key=lambda x: x['similaridade']['titulo'])['similaridade']['subtitulo'])/2,2) if list(filter(lambda x:x['site_name'] == 'folha_de_saopaulo', similaridade)) != [] else 0,
+                    'subtitulo': round((max(folhaSimiliar, key=lambda x: x['similaridade']['subtitulo'])['similaridade']['titulo'] + max(folhaSimiliar, key=lambda x: x['similaridade']['subtitulo'])['similaridade']['subtitulo'])/2,2) if list(filter(lambda x:x['site_name'] == 'folha_de_saopaulo', similaridade)) != [] else 0,
                 },
-                'gazeta_do_povo': {
-                    'titulo_mais_similar': [] if gazetaSimilar  == [] else max(gazetaSimilar, key=lambda x: x['similaridade']['titulo'])['similaridade'],
-                    'subtitulo_mais_similar': [] if gazetaSimilar  == [] else max(gazetaSimilar, key=lambda x: x['similaridade']['subtitulo'])['similaridade']
+                'gazeta_do_povo':{
+                    'titulo': round((max(gazetaSimilar, key=lambda x: x['similaridade']['titulo'])['similaridade']['titulo'] + max(gazetaSimilar, key=lambda x: x['similaridade']['titulo'])['similaridade']['subtitulo'])/2,2) if list(filter(lambda x:x['site_name'] == 'gazeta_do_povo', similaridade)) != [] else 0,
+                    'subtitulo': round((max(gazetaSimilar, key=lambda x: x['similaridade']['subtitulo'])['similaridade']['titulo'] + max(gazetaSimilar, key=lambda x: x['similaridade']['subtitulo'])['similaridade']['subtitulo'])/2,2) if list(filter(lambda x:x['site_name'] == 'gazeta_do_povo', similaridade)) != [] else 0,
                 },
-                'g1': {
-                    'titulo_mais_similar': [] if g1Similar == [] else max(g1Similar, key=lambda x:x['similaridade']['titulo'])['similaridade'],
-                    'subtitulo_mais_similar':  [] if g1Similar == [] else max(g1Similar, key=lambda x: x['similaridade']['subtitulo'])['similaridade']
+                'g1':{
+                    'titulo': round((max(g1Similar, key=lambda x: x['similaridade']['titulo'])['similaridade']['titulo'] + max(g1Similar, key=lambda x: x['similaridade']['titulo'])['similaridade']['subtitulo'])/2,2) if list(filter(lambda x:x['site_name'] == 'g1', similaridade)) != [] else 0,
+                    'subtitulo': round((max(g1Similar, key=lambda x: x['similaridade']['subtitulo'])['similaridade']['titulo'] + max(g1Similar, key=lambda x: x['similaridade']['subtitulo'])['similaridade']['subtitulo'])/2,2) if list(filter(lambda x:x['site_name'] == 'g1', similaridade)) != [] else 0,
                 },
-                'estadao': {
-                    'titulo_mais_similar': [] if estadaoSimilar == [] else max(estadaoSimilar, key=lambda x:x['similaridade']['titulo'])['similaridade'],
-                    'subtitulo_mais_similar': [] if estadaoSimilar == [] else max(estadaoSimilar, key=lambda x:x['similaridade']['subtitulo'])['similaridade']
+                'estadao':{
+                    'titulo': round((max(estadaoSimilar, key=lambda x: x['similaridade']['titulo'])['similaridade']['titulo'] + max(estadaoSimilar, key=lambda x: x['similaridade']['titulo'])['similaridade']['subtitulo'])/2,2) if list(filter(lambda x:x['site_name'] == 'estadao', similaridade)) != [] else 0,
+                    'subtitulo': round((max(estadaoSimilar, key=lambda x: x['similaridade']['subtitulo'])['similaridade']['titulo'] + max(estadaoSimilar, key=lambda x: x['similaridade']['subtitulo'])['similaridade']['subtitulo'])/2,2) if list(filter(lambda x:x['site_name'] == 'estadao', similaridade)) != [] else 0,
                 }
-            }
-        except Exception as e:
-            logging.exception('error')
+            })
+
+            ## Faz o processo de saber qual é mais parecido e salva os dados
+
+            for i in rate:
+                if i['folha_de_saopaulo']:
+                    folha_rated = max(i['folha_de_saopaulo']['titulo'], i['folha_de_saopaulo']['subtitulo']) if i['folha_de_saopaulo']['titulo'] != 0 and i['folha_de_saopaulo']['subtitulo'] != 0 else 0
+                    most_rated['most_rated_folha_de_saopaulo']= {
+                        'tax': folha_rated,
+                        'base_on_what': ('titulo' if i['folha_de_saopaulo']['titulo'] == folha_rated else 'subtitulo') if folha_rated != 0 else [],
+                        'data': (max(folhaSimiliar, key=lambda x:x['similaridade']['titulo'])['similaridade'] if i['folha_de_saopaulo']['titulo'] == folha_rated else max(folhaSimiliar, key=lambda x:x['similaridade']['titulo'])['similaridade']) if folha_rated != 0 else [],
+                        'site_name':'folha_de_saopaulo'
+                    }
+
+                if i['gazeta_do_povo']:
+                    gazeta_rated = max(i['gazeta_do_povo']['titulo'], i['gazeta_do_povo']['subtitulo']) if i['gazeta_do_povo']['titulo'] != 0 and i['gazeta_do_povo']['subtitulo'] != 0 else 0
+                    most_rated['most_rated_gazeta_do_povo'] = {
+                        'tax': gazeta_rated,
+                        'base_on_what': ('titulo' if i['gazeta_do_povo']['titulo'] == gazeta_rated else 'subtitulo') if gazeta_rated != 0 else [],
+                        'data': (max(gazetaSimilar, key=lambda x:x['similaridade']['titulo'])['similaridade'] if i['gazeta_do_povo']['titulo'] == gazeta_rated else max(gazetaSimilar, key=lambda x:x['similaridade']['titulo'])['similaridade']) if gazeta_rated != 0 else [],
+                        'site_name':'gazeta_do_povo'
+                    }
+
+                if i['g1']:
+                    g1_rated = max(i['g1']['titulo'], i['g1']['subtitulo']) if i['g1']['titulo'] != 0 and i['g1']['subtitulo'] != 0 else 0
+                    most_rated['most_rated_g1'] = {
+                        'tax': g1_rated,
+                        'base_on_what': ('titulo' if i['g1']['titulo'] == g1_rated else 'subtitulo') if g1_rated != 0 else [],
+                        'data': (max(g1Similar, key=lambda x:x['similaridade']['titulo'])['similaridade'] if i['g1']['titulo'] == g1_rated else max(g1Similar, key=lambda x:x['similaridade']['subtitulo'])['similaridade']) if g1_rated != 0 else [],
+                        'site_name':'g1'
+                    }
+
+                if i['estadao']:
+                    estadao_rated = max(i['estadao']['titulo'], i['estadao']['subtitulo']) if i['estadao']['titulo'] != 0 and i['estadao']['subtitulo'] != 0 else 0
+                    most_rated['most_rated_estadao'] = {
+                        'tax': estadao_rated,
+                        'base_on_what': ('titulo' if i['estadao']['titulo'] == estadao_rated else 'subtitulo') if estadao_rated != 0 else [],
+                        'data': (max(estadaoSimilar, key=lambda x:x['similaridade']['titulo'])['similaridade'] if i['estadao']['titulo'] == estadao_rated else max(estadaoSimilar, key=lambda x:x['similaridade']['subtitulo'])['similaridade']) if estadao_rated != 0 else [],
+                        'site_name':'estadao'
+                    }
+            
+            return most_rated
         except:
+            logging.exception('error')
             return {'msg':'Houve um erro ao tentar finalizar a solicitacao! Por favor tente novamente!', 'function':'GetSimilarity'},201
     
     def SentimentAnalisys(self): ## Aqui analisaremos a emoção de cada texto, onde utilizaremos Neutro, Positivo e Negativo para avaliar

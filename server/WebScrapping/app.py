@@ -32,17 +32,13 @@ def v1_similar():
     if request.json == {}:
         return {'msg':'Você precisa realizar uma requisição com o conteúdo no body da página'},201
     try:
-        isError = 0
         get_similar = sc(request.json['userQuery']).GetSimilarity()
-        for i in get_similar:
-            if get_similar[i]['titulo_mais_similar'] == [] and get_similar[i]['subtitulo_mais_similar'] == []:
-                isError += 1
-        if isError < 4:
-            return get_similar,200
-        else :
-            return {'msg':'Ocorreu um erro ao finalizar a tarefa. Por favor tente novamente!'},201
-    except Exception as e:
-        return e, 201
+        if len(get_similar) == 0:
+                return {'msg':'Ocorreu um erro ao finalizar a tarefa. Por favor tente novamente!'},201
+        
+        return get_similar,200
+    except:
+        logging.exception('error')
 
 @app.route('/v1/scraping/getcorpus', methods=["POST"])
 def v1_corpus():
