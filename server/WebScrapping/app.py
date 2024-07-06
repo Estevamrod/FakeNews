@@ -24,8 +24,8 @@ def v1_getdata():
             return get_data,200
         else:
             return {'msg':'Ocorreu um erro ao finalizar a tarefa. Por favor tente novamente!'},201
-    except Exception as e:
-        return e, 201
+    except:
+        logging.exception('error')
 
 @app.route('/v1/scraping/similarity', methods=['POST'])
 def v1_similar():

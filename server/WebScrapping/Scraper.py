@@ -18,13 +18,13 @@ class Scraper:
             'https://g1.globo.com/busca/?order=recent&species=notícias&', 
             #G1
             
-            'https://search.folha.uol.com.br/?periodo=mes&site=todos&',
+            'https://search.folha.uol.com.br/?periodo=ano&site=todos&',
             # Folha de São Paulo
 
             'https://www.gazetadopovo.com.br/busca/?sort=newest&period=last-year&',
             # Gazeta do Povo
 
-            'https://busca.estadao.com.br/?tipo_conteudo=Todos&quando=no-ultimo-mes&',
+            'https://busca.estadao.com.br/?tipo_conteudo=Todos&quando=no-ultimo-ano&',
             # Estadao   
         ]
 
@@ -106,10 +106,10 @@ class Scraper:
                             i += 1
             
             return {
-                'folha_de_sao_paulo': folha,
-                'gazeta_do_povo': gp,
-                'g1': g1,
-                'estadao': estadao,
+                'folha_de_saopaulo':folha,
+                'gazeta_do_povo':   gp,
+                'g1':               g1,
+                'estadao':          estadao,
             }
         except Exception as e:
             logging.exception('error')
@@ -145,13 +145,13 @@ class Scraper:
             ## fim g1
             ## Inicio Folha
             
-            for fTitulo in response['folha_de_sao_paulo']:
+            for fTitulo in response['folha_de_saopaulo']:
                 s2 = nlp(fTitulo['dados']['titulo'])
-                similaridade.append({'similaridade':{'titulo': round(s1.similarity(s2)*100, 2), 'titulo_original': fTitulo['dados']['titulo'], 'link_noticia': fTitulo['dados']['link']}, 'site_name':'folha_de_sao_paulo'})
+                similaridade.append({'similaridade':{'titulo': round(s1.similarity(s2)*100, 2), 'titulo_original': fTitulo['dados']['titulo'], 'link_noticia': fTitulo['dados']['link']}, 'site_name':'folha_de_saopaulo'})
 
-            folhaSimiliar = list(filter(lambda x: x['site_name'] == 'folha_de_sao_paulo', similaridade))
+            folhaSimiliar = list(filter(lambda x: x['site_name'] == 'folha_de_saopaulo', similaridade))
             i=0
-            for fSubtitulo in response['folha_de_sao_paulo']:
+            for fSubtitulo in response['folha_de_saopaulo']:
                 s2 = nlp(fSubtitulo['dados']['subtitulo'])
 
                 folhaSimiliar[i]['similaridade']['subtitulo'] = round(s1.similarity(s2)*100, 2)
@@ -188,7 +188,7 @@ class Scraper:
                 estadaoSimilar[i]['similaridade']['subtitulo'] = round(s1.similarity(s2)*100, 2)
                 estadaoSimilar[i]['similaridade']['subtitulo_original'] = estadaoSubtitulo['dados']['subtitulo']
                 i+= 1
-            
+
             ## Similarity simplification
 
             rate.append({  ## Pega a média entre as porcentagens para gerar apenas um valor de similaridade entre as duas notícias de cada site
@@ -211,12 +211,12 @@ class Scraper:
             })
 
             ## Faz o processo de saber qual é mais parecido e salva os dados
-
+            print(rate)
             for i in rate:
                 if i['folha_de_saopaulo']:
                     folha_rated = max(i['folha_de_saopaulo']['titulo'], i['folha_de_saopaulo']['subtitulo']) if i['folha_de_saopaulo']['titulo'] != 0 and i['folha_de_saopaulo']['subtitulo'] != 0 else 0
-                    most_rated['most_rated_folha_de_saopaulo']= {
-                        'tax': folha_rated,
+                    most_rated['folha_de_saopaulo']= {
+                        'highest_tax': folha_rated,
                         'base_on_what': ('titulo' if i['folha_de_saopaulo']['titulo'] == folha_rated else 'subtitulo') if folha_rated != 0 else [],
                         'data': (max(folhaSimiliar, key=lambda x:x['similaridade']['titulo'])['similaridade'] if i['folha_de_saopaulo']['titulo'] == folha_rated else max(folhaSimiliar, key=lambda x:x['similaridade']['titulo'])['similaridade']) if folha_rated != 0 else [],
                         'site_name':'folha_de_saopaulo'
@@ -224,8 +224,8 @@ class Scraper:
 
                 if i['gazeta_do_povo']:
                     gazeta_rated = max(i['gazeta_do_povo']['titulo'], i['gazeta_do_povo']['subtitulo']) if i['gazeta_do_povo']['titulo'] != 0 and i['gazeta_do_povo']['subtitulo'] != 0 else 0
-                    most_rated['most_rated_gazeta_do_povo'] = {
-                        'tax': gazeta_rated,
+                    most_rated['gazeta_do_povo'] = {
+                        'highest_tax': gazeta_rated,
                         'base_on_what': ('titulo' if i['gazeta_do_povo']['titulo'] == gazeta_rated else 'subtitulo') if gazeta_rated != 0 else [],
                         'data': (max(gazetaSimilar, key=lambda x:x['similaridade']['titulo'])['similaridade'] if i['gazeta_do_povo']['titulo'] == gazeta_rated else max(gazetaSimilar, key=lambda x:x['similaridade']['titulo'])['similaridade']) if gazeta_rated != 0 else [],
                         'site_name':'gazeta_do_povo'
@@ -233,8 +233,8 @@ class Scraper:
 
                 if i['g1']:
                     g1_rated = max(i['g1']['titulo'], i['g1']['subtitulo']) if i['g1']['titulo'] != 0 and i['g1']['subtitulo'] != 0 else 0
-                    most_rated['most_rated_g1'] = {
-                        'tax': g1_rated,
+                    most_rated['g1'] = {
+                        'highest_tax': g1_rated,
                         'base_on_what': ('titulo' if i['g1']['titulo'] == g1_rated else 'subtitulo') if g1_rated != 0 else [],
                         'data': (max(g1Similar, key=lambda x:x['similaridade']['titulo'])['similaridade'] if i['g1']['titulo'] == g1_rated else max(g1Similar, key=lambda x:x['similaridade']['subtitulo'])['similaridade']) if g1_rated != 0 else [],
                         'site_name':'g1'
@@ -242,8 +242,8 @@ class Scraper:
 
                 if i['estadao']:
                     estadao_rated = max(i['estadao']['titulo'], i['estadao']['subtitulo']) if i['estadao']['titulo'] != 0 and i['estadao']['subtitulo'] != 0 else 0
-                    most_rated['most_rated_estadao'] = {
-                        'tax': estadao_rated,
+                    most_rated['estadao'] = {
+                        'highest_tax': estadao_rated,
                         'base_on_what': ('titulo' if i['estadao']['titulo'] == estadao_rated else 'subtitulo') if estadao_rated != 0 else [],
                         'data': (max(estadaoSimilar, key=lambda x:x['similaridade']['titulo'])['similaridade'] if i['estadao']['titulo'] == estadao_rated else max(estadaoSimilar, key=lambda x:x['similaridade']['subtitulo'])['similaridade']) if estadao_rated != 0 else [],
                         'site_name':'estadao'
@@ -265,71 +265,42 @@ class Scraper:
             for i in response:
 
                 ## Folha de Sao Paulo
-                if i == 'folha_de_saopaulo' and (response[i]['title_based'] != [] and response[i]['subtitle_based'] != []):
-                    print(response[i]['title_based'])
-                    sentiment.append({'title':SentimentIntensityAnalyzer().polarity_scores(response[i]['title_based']), 'subtitle': SentimentIntensityAnalyzer().polarity_scores(response[i]['subtitle_based']), 'origin':'folha_de_saopaulo'})
+                if i == 'folha_de_saopaulo' and response[i] != []:
+                    sentiment.append({'title':SentimentIntensityAnalyzer().polarity_scores(response[i]), 'origin':'folha_de_saopaulo'})
 
                 ## Gazeta do Povo
-                if i == 'gazeta_do_povo' and (response[i]['title_based'] != [] and response[i]['subtitle_based'] != []):
-                    sentiment.append({'title':SentimentIntensityAnalyzer().polarity_scores(response[i]['title_based']), 'subtitle': SentimentIntensityAnalyzer().polarity_scores(response[i]['subtitle_based']), 'origin':'gazeta_do_povo'})
+                if i == 'gazeta_do_povo' and response[i] != []:
+                    sentiment.append({'title':SentimentIntensityAnalyzer().polarity_scores(response[i]), 'origin':'gazeta_do_povo'})
 
                 ## G1
-                if i == 'g1' and (response[i]['title_based'] != [] and response[i]['subtitle_based'] != []):
-                    sentiment.append({'title':SentimentIntensityAnalyzer().polarity_scores(response[i]['title_based']), 'subtitle': SentimentIntensityAnalyzer().polarity_scores(response[i]['subtitle_based']), 'origin':'g1'})
+                if i == 'g1' and response[i] != []:
+                    sentiment.append({'title':SentimentIntensityAnalyzer().polarity_scores(response[i]), 'origin':'g1'})
 
                 ## Estadao
-                if i == 'estadao' and (response[i]['title_based'] != [] and response[i]['subtitle_based'] != []):
-                    sentiment.append({'title':SentimentIntensityAnalyzer().polarity_scores(response[i]['title_based']), 'subtitle': SentimentIntensityAnalyzer().polarity_scores(response[i]['subtitle_based']), 'origin':'estadao'})
+                if i == 'estadao' and response[i] != []:
+                    sentiment.append({'title':SentimentIntensityAnalyzer().polarity_scores(response[i]), 'origin':'estadao'})
 
             return {
                 'folha_de_saopaulo':{
-                    'title_based': {
-                        # 'negativo': f"{round(folhaCorpusSentiment['neg']*100,2)}%",
-                        'negativo': f"{round(list(filter(lambda x:x['origin'] == 'folha_de_saopaulo', sentiment))[0]['title']['neg']*100,2) if list(filter(lambda x:x['origin'] == 'folha_de_saopaulo', sentiment)) != [] else []}%",
-                        'neutro': f"{round(list(filter(lambda x:x['origin'] == 'folha_de_saopaulo', sentiment))[0]['title']['neu']*100,2) if list(filter(lambda x:x['origin'] == 'folha_de_saopaulo', sentiment)) != [] else []}%",
-                        'positivo': f"{round(list(filter(lambda x:x['origin'] == 'folha_de_saopaulo', sentiment))[0]['title']['pos']*100,2) if list(filter(lambda x:x['origin'] == 'folha_de_saopaulo', sentiment)) != [] else []}%",
-                    },
-                    'subtitle_based': {
-                        'negativo': f"{round(list(filter(lambda x:x['origin'] == 'folha_de_saopaulo', sentiment))[0]['subtitle']['neg']*100,2) if list(filter(lambda x:x['origin'] == 'folha_de_saopaulo', sentiment)) != [] else []}%",
-                        'neutro': f"{round(list(filter(lambda x:x['origin'] == 'folha_de_saopaulo', sentiment))[0]['subtitle']['neu']*100,2) if list(filter(lambda x:x['origin'] == 'folha_de_saopaulo', sentiment)) != [] else []}%",
-                        'positivo': f"{round(list(filter(lambda x:x['origin'] == 'folha_de_saopaulo', sentiment))[0]['subtitle']['pos']*100,2) if list(filter(lambda x:x['origin'] == 'folha_de_saopaulo', sentiment)) != [] else []}%",
-                    }
+                    # 'negativo': f"{round(folhaCorpusSentiment['neg']*100,2)}%",
+                    'negativo': f"{round(list(filter(lambda x:x['origin'] == 'folha_de_saopaulo', sentiment))[0]['title']['neg']*100,2) if list(filter(lambda x:x['origin'] == 'folha_de_saopaulo', sentiment)) != [] else []}%",
+                    'neutro': f"{round(list(filter(lambda x:x['origin'] == 'folha_de_saopaulo', sentiment))[0]['title']['neu']*100,2) if list(filter(lambda x:x['origin'] == 'folha_de_saopaulo', sentiment)) != [] else []}%",
+                    'positivo': f"{round(list(filter(lambda x:x['origin'] == 'folha_de_saopaulo', sentiment))[0]['title']['pos']*100,2) if list(filter(lambda x:x['origin'] == 'folha_de_saopaulo', sentiment)) != [] else []}%",
                 },
                 'gazeta_do_povo':{
-                    'title_based': {
-                        'negativo': f"{round(list(filter(lambda x:x['origin'] == 'gazeta_do_povo', sentiment))[0]['title']['neg']*100,2) if list(filter(lambda x:x['origin'] == 'gazeta_do_povo', sentiment)) != [] else []}%",
-                        'neutro': f"{round(list(filter(lambda x:x['origin'] == 'gazeta_do_povo', sentiment))[0]['title']['neu']*100,2) if list(filter(lambda x:x['origin'] == 'gazeta_do_povo', sentiment)) != [] else []}%",
-                        'positivo': f"{round(list(filter(lambda x:x['origin'] == 'gazeta_do_povo', sentiment))[0]['title']['pos']*100,2) if list(filter(lambda x:x['origin'] == 'gazeta_do_povo', sentiment)) != [] else []}%",
-                    },
-                    'subtitle_based':{
-                        'negativo': f"{round(list(filter(lambda x:x['origin'] == 'gazeta_do_povo', sentiment))[0]['subtitle']['neg']*100,2) if list(filter(lambda x:x['origin'] == 'gazeta_do_povo', sentiment)) != [] else []}%",
-                        'neutro': f"{round(list(filter(lambda x:x['origin'] == 'gazeta_do_povo', sentiment))[0]['subtitle']['neu']*100,2) if list(filter(lambda x:x['origin'] == 'gazeta_do_povo', sentiment)) != [] else []}%",
-                        'positivo': f"{round(list(filter(lambda x:x['origin'] == 'gazeta_do_povo', sentiment))[0]['subtitle']['pos']*100,2) if list(filter(lambda x:x['origin'] == 'gazeta_do_povo', sentiment)) != [] else []}%",
-                    }
+                    'negativo': f"{round(list(filter(lambda x:x['origin'] == 'gazeta_do_povo', sentiment))[0]['title']['neg']*100,2) if list(filter(lambda x:x['origin'] == 'gazeta_do_povo', sentiment)) != [] else []}%",
+                    'neutro': f"{round(list(filter(lambda x:x['origin'] == 'gazeta_do_povo', sentiment))[0]['title']['neu']*100,2) if list(filter(lambda x:x['origin'] == 'gazeta_do_povo', sentiment)) != [] else []}%",
+                    'positivo': f"{round(list(filter(lambda x:x['origin'] == 'gazeta_do_povo', sentiment))[0]['title']['pos']*100,2) if list(filter(lambda x:x['origin'] == 'gazeta_do_povo', sentiment)) != [] else []}%",
                 },
                 'g1': {
-                    'title_based':{
-                        'negativo': f"{round(list(filter(lambda x:x['origin'] == 'g1', sentiment))[0]['title']['neg']*100,2) if list(filter(lambda x:x['origin'] == 'g1', sentiment)) != [] else []}%",
-                        'neutro': f"{round(list(filter(lambda x:x['origin'] == 'g1', sentiment))[0]['title']['neu']*100,2) if list(filter(lambda x:x['origin'] == 'g1', sentiment)) != [] else []}%",
-                        'positivo': f"{round(list(filter(lambda x:x['origin'] == 'g1', sentiment))[0]['title']['pos']*100,2) if list(filter(lambda x:x['origin'] == 'g1', sentiment)) != [] else []}%",
-                    },
-                    'subtitle_based':{
-                        'negativo': f"{round(list(filter(lambda x:x['origin'] == 'g1', sentiment))[0]['subtitle']['neg']*100,2) if list(filter(lambda x:x['origin'] == 'g1', sentiment)) != [] else []}%",
-                        'neutro': f"{round(list(filter(lambda x:x['origin'] == 'g1', sentiment))[0]['subtitle']['neu']*100,2) if list(filter(lambda x:x['origin'] == 'g1', sentiment)) != [] else []}%",
-                        'positivo': f"{round(list(filter(lambda x:x['origin'] == 'g1', sentiment))[0]['subtitle']['pos']*100,2) if list(filter(lambda x:x['origin'] == 'g1', sentiment)) != [] else []}%",
-                    }
+                    'negativo': f"{round(list(filter(lambda x:x['origin'] == 'g1', sentiment))[0]['title']['neg']*100,2) if list(filter(lambda x:x['origin'] == 'g1', sentiment)) != [] else []}%",
+                    'neutro': f"{round(list(filter(lambda x:x['origin'] == 'g1', sentiment))[0]['title']['neu']*100,2) if list(filter(lambda x:x['origin'] == 'g1', sentiment)) != [] else []}%",
+                    'positivo': f"{round(list(filter(lambda x:x['origin'] == 'g1', sentiment))[0]['title']['pos']*100,2) if list(filter(lambda x:x['origin'] == 'g1', sentiment)) != [] else []}%",
                 },
                 'estadao': {
-                    'title_based':{
-                        'negativo': f"{round(list(filter(lambda x:x['origin'] == 'estadao', sentiment))[0]['title']['neg']*100,2) if list(filter(lambda x:x['origin'] == 'estadao', sentiment)) != [] else []}%",
-                        'neutro': f"{round(list(filter(lambda x:x['origin'] == 'estadao', sentiment))[0]['title']['neu']*100,2) if list(filter(lambda x:x['origin'] == 'estadao', sentiment)) != [] else []}%",
-                        'positivo': f"{round(list(filter(lambda x:x['origin'] == 'estadao', sentiment))[0]['title']['pos']*100,2) if list(filter(lambda x:x['origin'] == 'estadao', sentiment)) != [] else []}%",
-                    },
-                    'subtitle_based':{
-                        'negativo': f"{round(list(filter(lambda x:x['origin'] == 'estadao', sentiment))[0]['subtitle']['neg']*100,2) if list(filter(lambda x:x['origin'] == 'estadao', sentiment)) != [] else []}%",
-                        'neutro': f"{round(list(filter(lambda x:x['origin'] == 'estadao', sentiment))[0]['subtitle']['neu']*100,2) if list(filter(lambda x:x['origin'] == 'estadao', sentiment)) != [] else []}%",
-                        'positivo': f"{round(list(filter(lambda x:x['origin'] == 'estadao', sentiment))[0]['subtitle']['pos']*100,2) if list(filter(lambda x:x['origin'] == 'estadao', sentiment)) != [] else []}%",
-                    }
+                    'negativo': f"{round(list(filter(lambda x:x['origin'] == 'estadao', sentiment))[0]['title']['neg']*100,2) if list(filter(lambda x:x['origin'] == 'estadao', sentiment)) != [] else []}%",
+                    'neutro': f"{round(list(filter(lambda x:x['origin'] == 'estadao', sentiment))[0]['title']['neu']*100,2) if list(filter(lambda x:x['origin'] == 'estadao', sentiment)) != [] else []}%",
+                    'positivo': f"{round(list(filter(lambda x:x['origin'] == 'estadao', sentiment))[0]['title']['pos']*100,2) if list(filter(lambda x:x['origin'] == 'estadao', sentiment)) != [] else []}%",
                 }
             }
         except Exception as e:
@@ -340,25 +311,20 @@ class Scraper:
     def GetCorpus(self): ## Aqui pegamos o corpo da notícia que é mais adequada com o que se é pesquisado pelo usuário
         try:
             corpus = []
-            subtitle_corpus = []
-            url_subtitlebased = []
-            url_titlebased = []
+            url = []
 
             data = self.GetSimilarity()
         
             for site_origin in data:
-                if data[site_origin]['titulo_mais_similar'] != [] and data[site_origin]['subtitulo_mais_similar'] != []:
-                    url_titlebased.append({'site_origin':site_origin, 'link': data[site_origin]['titulo_mais_similar']['link_noticia']})
-                    url_subtitlebased.append({'site_origin': site_origin, 'link': data[site_origin]['subtitulo_mais_similar']['link_noticia']})
+                if data[site_origin]['data'] != []:
+                    url.append({'site_origin':site_origin, 'link': data[site_origin]['data']['link_noticia']})
 
             ## Start first with title link's based
 
-            title_request = [grequests.get(link['link']) for link in url_titlebased]
-            title_response = grequests.map(title_request, size=4)
-            subtitle_request = [grequests.get(link['link']) for link in url_subtitlebased]
-            subtitle_response = grequests.map(subtitle_request, size=4)
+            req = [grequests.get(link['link']) for link in url]
+            responses = grequests.map(req, size=4)
 
-            for response in title_response:
+            for response in responses:
                 print(f"title get_corpus: {response.status_code}")
                 soup = BeautifulSoup(response.content, 'html.parser')
 
@@ -366,7 +332,7 @@ class Scraper:
 
                 i = 0
                 fullcorpus = ''
-                if (any([index['site_origin'] == 'folha_de_saopaulo' for index in corpus]) == False) and any([index['link'] == response.url and index['site_origin'] == 'folha_de_saopaulo' for index in url_titlebased]):
+                if (any([index['site_origin'] == 'folha_de_saopaulo' for index in corpus]) == False) and any([index['link'] == response.url and index['site_origin'] == 'folha_de_saopaulo' for index in url]):
                     for fbody in soup.find_all(class_='c-news__body'):
                         while(i < len(fbody.find_all('p'))):
                             fullcorpus += fbody.find_all('p')[i].get_text().strip()
@@ -377,7 +343,7 @@ class Scraper:
 
                 i = 0
                 fullcorpus = ''
-                if (any([index['site_origin'] == 'gazeta_do_povo' for index in corpus]) == False) and any([index['link'] == response.url and index['site_origin'] == 'gazeta_do_povo' for index in url_titlebased]):
+                if (any([index['site_origin'] == 'gazeta_do_povo' for index in corpus]) == False) and any([index['link'] == response.url and index['site_origin'] == 'gazeta_do_povo' for index in url]):
                     for gaBody in soup.find_all(class_='wrapper'):
                         while (i < len(gaBody.find_all('p'))):
                             fullcorpus += gaBody.find_all('p')[i].get_text().strip()
@@ -389,7 +355,7 @@ class Scraper:
                 i = 0
                 fullcorpus = ''
                 g1link = []
-                if (any([index['site_origin'] == 'g1' for index in corpus]) == False) and any([index['link'] == response.url and index['site_origin'] == 'g1' for index in url_titlebased]):
+                if (any([index['site_origin'] == 'g1' for index in corpus]) == False) and any([index['link'] == response.url and index['site_origin'] == 'g1' for index in url]):
                     for originalLink in soup.find('script'):
                         if 'window.location.replace' in originalLink:
                             g1link.append({'g1_link':originalLink.format().rsplit('window.location.replace("')[1].rsplit('");')[0]})
@@ -410,92 +376,18 @@ class Scraper:
 
                 i = 0
                 fullcorpus = ''
-                if (any([index['site_origin'] == 'estadao' for index in corpus]) == False) and  any([index['link'] == response.url and index['site_origin'] == 'estadao' for index in url_titlebased]):
+                if (any([index['site_origin'] == 'estadao' for index in corpus]) == False) and  any([index['link'] == response.url and index['site_origin'] == 'estadao' for index in url]):
                     for estadobody in soup.find_all(class_='styles__ContentWrapperContainerStyled-sc-1ehbu6v-0'):
                         while(i < len(estadobody.find_all('p'))):
                             fullcorpus += estadobody.find_all('p')[i].get_text().strip()
                             i += 1
                     corpus.append({'corpus': fullcorpus,'site_origin':'estadao'})
-            
-            ## get_corpus related to the subtitle
-
-            for response in subtitle_response:
-                print(f"subtitle get_corpus: {response.status_code}")
-                soup = BeautifulSoup(response.content, 'html.parser')
-
-                ## Folha
-
-                i = 0
-                fullcorpus = ''
-                if (any([index['site_origin'] == 'folha_de_saopaulo' for index in subtitle_corpus]) == False) and any([index['link'] == response.url and index['site_origin'] == 'folha_de_saopaulo' for index in url_subtitlebased]):
-                    for fbody in soup.find_all(class_='c-news__body'):
-                        while(i < len(fbody.find_all('p'))):
-                            fullcorpus += fbody.find_all('p')[i].get_text().strip()
-                            i += 1
-                    subtitle_corpus.append({'corpus':fullcorpus, 'site_origin':'folha_de_saopaulo'})
-                
-                ## Gazeta
-
-                i = 0
-                fullcorpus = ''
-                if (any([index['site_origin'] == 'gazeta_do_povo' for index in subtitle_corpus]) == False) and any([index['link'] == response.url and index['site_origin'] == 'gazeta_do_povo' for index in url_subtitlebased]):
-                    for gaBody in soup.find_all(class_='wrapper'):
-                        while (i < len(gaBody.find_all('p'))):
-                            fullcorpus += gaBody.find_all('p')[i].get_text().strip()
-                            i += 1
-                    subtitle_corpus.append({'corpus': fullcorpus, 'site_origin':'gazeta_do_povo'})
-                
-                ## G1
-
-                i = 0
-                fullcorpus = ''
-                subtitle_g1link = []
-                if (any([index['site_origin'] == 'g1' for index in subtitle_corpus]) == False) and any([index['link'] == response.url and index['site_origin'] == 'g1' for index in url_subtitlebased]):
-                    for originalLink in soup.find('script'):
-                        if 'window.location.replace' in originalLink:
-                            subtitle_g1link.append({'g1_link':originalLink.format().rsplit('window.location.replace("')[1].rsplit('");')[0]})
-
-                    subtitle_g1_request = [grequests.get(g1_url['g1_link']) for g1_url in subtitle_g1link] ## -> Os links do G1 tem um problema para serem feitos requests, pois acaba dando erro e nesse erro está o link correto
-                    g1_sub_response = grequests.map(subtitle_g1_request, size=1)
-
-                    for g1_response in g1_sub_response:
-                        print(f"subtitle get_corpus --> g1 / status_code: {g1_response.status_code}")
-                        soup = BeautifulSoup(g1_response.content, 'html.parser')
-
-                        for g1body in soup.find_all(class_='wall protected-content'):
-                            while (i < len(g1body.find_all('p'))):
-                                fullcorpus += g1body.find_all('p')[i].get_text().strip()
-                                i += 1
-                        subtitle_corpus.append({'corpus':fullcorpus, 'site_origin':'g1'})
-
-                ## Estadao
-                
-                i = 0
-                fullcorpus = ''
-                if (any([index['site_origin'] == 'estadao' for index in subtitle_corpus]) == False) and any([index['link'] == response.url and index['site_origin'] == 'estadao' for index in url_subtitlebased]):
-                    for estadobody in soup.find_all(class_='styles__ContentWrapperContainerStyled-sc-1ehbu6v-0'):
-                        while(i < len(estadobody.find_all('p'))):
-                            fullcorpus += estadobody.find_all('p')[i].get_text().strip()
-                            i += 1
-                    subtitle_corpus.append({'corpus': fullcorpus,'site_origin':'estadao'})
 
             return {
-                'folha_de_saopaulo':{
-                    'title_based': list(filter(lambda x:x['site_origin'] == 'folha_de_saopaulo', corpus))[0]['corpus'] if  list(filter(lambda x:x['site_origin'] == 'folha_de_saopaulo', corpus)) != [] else [],
-                    'subtitle_based': list(filter(lambda x:x['site_origin'] == 'folha_de_saopaulo', subtitle_corpus))[0]['corpus'] if list(filter(lambda x:x['site_origin'] == 'folha_de_saopaulo', subtitle_corpus)) != []  else []
-                },
-                'gazeta_do_povo':{ 
-                    'title_based': list(filter(lambda x:x['site_origin'] == 'gazeta_do_povo', corpus))[0]['corpus'] if  list(filter(lambda x:x['site_origin'] == 'gazeta_do_povo', corpus)) != [] else [],
-                    'subtitle_based': list(filter(lambda x:x['site_origin'] == 'gazeta_do_povo', subtitle_corpus))[0]['corpus'] if list(filter(lambda x:x['site_origin'] == 'gazeta_do_povo', subtitle_corpus)) != [] else []
-                },
-                'g1': {
-                    'title_based': list(filter(lambda x:x['site_origin'] == 'g1', corpus))[0]['corpus'] if  list(filter(lambda x:x['site_origin'] == 'g1', corpus)) != []  else [],
-                    'subtitle_based': list(filter(lambda x:x['site_origin'] == 'g1', subtitle_corpus))[0]['corpus'] if  list(filter(lambda x:x['site_origin'] == 'g1', subtitle_corpus)) != [] else [],
-                },
-                'estadao':{
-                    'title_based': list(filter(lambda x:x['site_origin'] == 'estadao', corpus))[0]['corpus'] if list(filter(lambda x:x['site_origin'] == 'estadao', corpus)) != []  else [],
-                    'subtitle_based': list(filter(lambda x:x['site_origin'] == 'estadao', subtitle_corpus))[0]['corpus'] if  list(filter(lambda x:x['site_origin'] == 'estadao', subtitle_corpus)) != []  else [],
-                }
+                'folha_de_saopaulo':    list(filter(lambda x:x['site_origin'] == 'folha_de_saopaulo', corpus))[0]['corpus'] if  list(filter(lambda x:x['site_origin'] == 'folha_de_saopaulo', corpus)) != [] else [],
+                'gazeta_do_povo':       list(filter(lambda x:x['site_origin'] == 'gazeta_do_povo', corpus))[0]['corpus'] if  list(filter(lambda x:x['site_origin'] == 'gazeta_do_povo', corpus)) != [] else [],
+                'g1':                   list(filter(lambda x:x['site_origin'] == 'g1', corpus))[0]['corpus'] if  list(filter(lambda x:x['site_origin'] == 'g1', corpus)) != []  else [],
+                'estadao':              list(filter(lambda x:x['site_origin'] == 'estadao', corpus))[0]['corpus'] if list(filter(lambda x:x['site_origin'] == 'estadao', corpus)) != []  else []
             }
         except Exception as e:
             logging.exception('erro')
@@ -505,42 +397,35 @@ class Scraper:
     def Getdate(self):
         try:
             content = self.GetSimilarity()
-            title_url = []
-            subtitle_url = []
+            url = []
             date_corpus= []
 
             for index in content:
-                if content[index]['titulo_mais_similar'] !=  [] and content[index]['subtitulo_mais_similar'] !=  []:
-                    title_url.append({'link':content[index]['titulo_mais_similar']['link_noticia'], 'site_origin':index})
-                    subtitle_url.append({'link':content[index]['subtitulo_mais_similar']['link_noticia'], 'site_origin': index})
+                if content[index]['data'] !=  []:
+                    url.append({'link':content[index]['data']['link_noticia'], 'site_origin':index})
 
-            date_title_request = [grequests.get(link['link']) for link in title_url]
-            date_responses = grequests.map(date_title_request, size=4)
-            
-            date_sub_request = [grequests.get(link['link']) for link in subtitle_url]
-            date_sub_responses = grequests.map(date_sub_request, size=4)
+            req = [grequests.get(link['link']) for link in url]
+            responses = grequests.map(req, size=4)
 
-            # Primeiro comecaremos com o titulo
-
-            for response in date_responses:
+            for response in responses:
                 print(f"title get_date: {response.status_code}")
                 soup = BeautifulSoup(response.content, 'html.parser')
 
                 #Folha de Sao Paulo
-                if (any([index['site_origin'] == 'folha_de_saopaulo' and index['to'] == 'title' for index in date_corpus]) == False) and any([index['link'] == response.url and index['site_origin'] == 'folha_de_saopaulo' for index in title_url]):
+                if (any([index['site_origin'] == 'folha_de_saopaulo' for index in date_corpus]) == False) and any([index['link'] == response.url and index['site_origin'] == 'folha_de_saopaulo' for index in url]):
                     for folha_date in soup.find(class_='c-more-options__published-date'):
                         if folha_date.get_text().strip().isalpha() == False:
-                            date_corpus.append({'datetime':folha_date.get_text().strip(), 'site_origin':'folha_de_saopaulo','to':'title', 'origin': response.url})
+                            date_corpus.append({'datetime':folha_date.get_text().strip(), 'site_origin':'folha_de_saopaulo','origin': response.url})
 
                 #Gazeta do povo
-                if (any([index['site_origin'] == 'gazeta_do_povo' and index['to'] == 'title' for index in date_corpus]) == False) and any([index['link'] == response.url and index['site_origin'] == 'gazeta_do_povo' for index in title_url]):
+                if (any([index['site_origin'] == 'gazeta_do_povo' for index in date_corpus]) == False) and any([index['link'] == response.url and index['site_origin'] == 'gazeta_do_povo' for index in url]):
                     for gazeta_date in soup.find(class_='wgt-date'):
                         if gazeta_date.get_text().strip().isalpha() == False:
-                            date_corpus.append({'datetime':gazeta_date.get_text().strip(), 'site_origin':'gazeta_do_povo','to':'title', 'origin': response.url})
+                            date_corpus.append({'datetime':gazeta_date.get_text().strip(), 'site_origin':'gazeta_do_povo', 'origin': response.url})
                 
                 #G1
                 formatt_link = []
-                if (any([index['site_origin'] == 'g1' and index['to'] == 'title' for index in date_corpus]) == False) and any([index['link'] == response.url and index['site_origin'] == 'g1' for index in title_url]):
+                if (any([index['site_origin'] == 'g1' for index in date_corpus]) == False) and any([index['link'] == response.url and index['site_origin'] == 'g1' for index in url]):
                     for getscript in soup.find('script'):
                         if 'window.location.replace' in getscript:
                             formatt_link.append({'link':getscript.format().rsplit('window.location.replace("')[1].rsplit('");')[0]})
@@ -553,79 +438,21 @@ class Scraper:
 
                         for g1date in soup.find(class_='content-publication-data__updated'):
                             if g1date.find_next('time').get_text().strip().isalpha() == False:
-                                date_corpus.append({'datetime':g1date.find_next('time').get_text().strip(), 'site_origin':'g1', 'to':'title', 'origin': response.url})
+                                date_corpus.append({'datetime':g1date.find_next('time').get_text().strip(), 'site_origin':'g1', 'origin': response.url})
                                 break
 
                 #Estadao
-                if (any([index['site_origin'] == 'estadao' and index['to'] == 'title' for index in date_corpus]) == False) and any([index['link'] == response.url and index['site_origin'] == 'estadao' for index in title_url]):
+                if (any([index['site_origin'] == 'estadao' for index in date_corpus]) == False) and any([index['link'] == response.url and index['site_origin'] == 'estadao' for index in url]):
                     for estadao_date in soup.find(class_='principal-dates'):
                         if estadao_date.find_next('time').get_text().strip().isalpha() == False:
-                            date_corpus.append({'datetime':estadao_date.find_next('time').get_text().strip(), 'site_origin':'estadao', 'to':'title', 'origin': response.url})
+                            date_corpus.append({'datetime':estadao_date.find_next('time').get_text().strip(), 'site_origin':'estadao', 'origin': response.url})
                             break
             
-            # Agora realiza a busca pela as datas com base no subtitulo
-
-            for response in date_sub_responses:
-                print(f"subtitle get_data: {response.status_code}")
-                soup = BeautifulSoup(response.content, 'html.parser')
-
-                #Folha de sao paulo
-
-                if (any([index['site_origin'] == 'folha_de_saopaulo' and index['to'] == 'subtitle' for index in date_corpus]) == False) and any([index['link'] == response.url and index['site_origin'] == 'folha_de_saopaulo' for index in subtitle_url]):
-                    for folha_date in soup.find(class_='c-more-options__published-date'):
-                        if folha_date.get_text().strip().isalpha() == False:
-                            date_corpus.append({'datetime':folha_date.get_text().strip(), 'site_origin':'folha_de_saopaulo','to':'subtitle', 'origin': response.url})
-                
-                #Gazeta do povo
-
-                if (any([index['site_origin'] == 'gazeta_do_povo' and index['to'] == 'subtitle' for index in date_corpus]) == False) and any([index['link'] == response.url and index['site_origin'] == 'gazeta_do_povo' for index in subtitle_url]):
-                    for gazeta_date in soup.find(class_='wgt-date'):
-                        if gazeta_date.get_text().strip().isalpha() == False:
-                            date_corpus.append({'datetime':gazeta_date.get_text().strip(), 'site_origin':'gazeta_do_povo','to':'subtitle', 'origin': response.url})
-                
-                # G1
-
-                formatt_link_sub = []
-                if (any([index['site_origin'] == 'g1' and index['to'] == 'subtitle' for index in date_corpus]) == False) and any([index['link'] == response.url and index['site_origin'] == 'g1' for index in subtitle_url]):
-                    for getscript in soup.find('script'):
-                        if 'window.location.replace' in getscript:
-                            formatt_link_sub.append({'link':getscript.format().rsplit('window.location.replace("')[1].rsplit('");')[0]})
-                            
-                    g1formatsub_rq = [grequests.get(link['link']) for link in formatt_link_sub]
-                    g1formatsub_res = grequests.map(g1formatsub_rq, size=1)
-                    for g1response in g1formatsub_res:
-                        print(f"title get_date g1 : {g1response.status_code}")
-                        soup = BeautifulSoup(g1response.content, 'html.parser')
-
-                        for g1date in soup.find(class_='content-publication-data__updated'):
-                            if g1date.find_next('time').get_text().strip().isalpha() == False:
-                                date_corpus.append({'datetime':g1date.find_next('time').get_text().strip(), 'site_origin':'g1', 'to':'subtitle', 'origin': response.url})
-                                break
-
-                #Estadao
-                
-                if (any([index['site_origin'] == 'estadao' and index['to'] == 'subtitle' for index in date_corpus]) == False) and any([index['link'] == response.url and index['site_origin'] == 'estadao' for index in subtitle_url]):
-                    for estadao_date in soup.find(class_='principal-dates'):
-                        if estadao_date.find_next('time').get_text().strip().isalpha() == False:
-                            date_corpus.append({'datetime':estadao_date.find_next('time').get_text().strip(), 'site_origin':'estadao', 'to':'subtitle', 'origin': response.url})
-                            break
             return {
-                'folha_de_saopaulo':{
-                    'title_based':list(filter(lambda x:x['site_origin'] == 'folha_de_saopaulo' and x['to'] == 'title', date_corpus))[0] if list(filter(lambda x:x['site_origin'] == 'folha_de_saopaulo' and x['to'] == 'title', date_corpus)) != [] else [],
-                    'subtitle_based':list(filter(lambda x:x['site_origin'] == 'folha_de_saopaulo' and x['to'] == 'subtitle',  date_corpus))[0] if list(filter(lambda x:x['site_origin'] == 'folha_de_saopaulo' and x['to'] == 'subtitle',  date_corpus)) != [] else []
-                },
-                'gazeta_do_povo':{
-                    'title_based':list(filter(lambda x:x['site_origin'] == 'gazeta_do_povo' and x['to'] == 'title', date_corpus))[0] if list(filter(lambda x:x['site_origin'] == 'gazeta_do_povo' and x['to'] == 'title', date_corpus)) != [] else [],
-                    'subtitle_based':list(filter(lambda x:x['site_origin'] == 'gazeta_do_povo' and x['to'] == 'subtitle',  date_corpus))[0] if list(filter(lambda x:x['site_origin'] == 'gazeta_do_povo' and x['to'] == 'subtitle',  date_corpus)) != [] else []
-                },
-                'g1':{
-                    'title_based':list(filter(lambda x:x['site_origin'] == 'g1' and x['to'] == 'title', date_corpus))[0] if list(filter(lambda x:x['site_origin'] == 'g1' and x['to'] == 'title', date_corpus)) != [] else [],
-                    'subtitle_based':list(filter(lambda x:x['site_origin'] == 'g1' and x['to'] == 'subtitle',  date_corpus))[0] if list(filter(lambda x:x['site_origin'] == 'g1' and x['to'] == 'subtitle',  date_corpus)) != [] else []
-                },
-                'estadao': {
-                    'title_based':list(filter(lambda x:x['site_origin'] == 'estadao' and x['to'] == 'title', date_corpus))[0] if list(filter(lambda x:x['site_origin'] == 'estadao' and x['to'] == 'title', date_corpus)) != [] else [],
-                    'subtitle_based':list(filter(lambda x:x['site_origin'] == 'estadao' and x['to'] == 'subtitle',  date_corpus))[0] if list(filter(lambda x:x['site_origin'] == 'estadao' and x['to'] == 'subtitle',  date_corpus)) != [] else []
-                }
+                'folha_de_saopaulo':    list(filter(lambda x:x['site_origin'] == 'folha_de_saopaulo', date_corpus))[0] if list(filter(lambda x:x['site_origin'] == 'folha_de_saopaulo', date_corpus)) != [] else [],
+                'gazeta_do_povo':       list(filter(lambda x:x['site_origin'] == 'gazeta_do_povo', date_corpus))[0] if list(filter(lambda x:x['site_origin'] == 'gazeta_do_povo', date_corpus)) != [] else [],
+                'g1':                   list(filter(lambda x:x['site_origin'] == 'g1', date_corpus))[0] if list(filter(lambda x:x['site_origin'] == 'g1', date_corpus)) != [] else [],
+                'estadao':              list(filter(lambda x:x['site_origin'] == 'estadao', date_corpus))[0] if list(filter(lambda x:x['site_origin'] == 'estadao', date_corpus)) != [] else []
             }
         except Exception as e:
             logging.exception('error')
