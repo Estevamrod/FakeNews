@@ -1,11 +1,13 @@
 import nltk
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import spacy
-from Classes.Scraper import Scraper
+from .Scraper import Scraper
 import logging
 
-class Analysis:
-    def __init__(self, tosearch):
+class Analysis: 
+    tosearch:str
+    
+    def __init__(self, tosearch:str):
         self.newstoSearch = tosearch
         self.similarity_response = {}
     

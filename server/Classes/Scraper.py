@@ -3,7 +3,9 @@ from bs4 import BeautifulSoup
 import logging
 
 class Scraper:
-    def GetData(newstoSearch):  ## Aqui a gente vai utilizar para "pegar" os titulos, manchetes e os links de cada noticia
+    
+    @staticmethod
+    def GetData(newstoSearch:str):  ## Aqui a gente vai utilizar para "pegar" os titulos, manchetes e os links de cada noticia
         
         data = []
         searchEngineStandart = [ ## Sites que utilizam a mesma syntax para realizar pesquisas. Ou seja, utilizando *q=* significando query ou pesquisa traduzindo ao pe da letra
@@ -108,6 +110,7 @@ class Scraper:
         except:
             return {'msg':'Houve um erro ao tentar finalizar a solicitacao! Por favor tente novamente!', 'function':'GetData'},201
 
+    @staticmethod
     def GetCorpus(data): ## Aqui pegamos o corpo da notícia que é mais adequada com o que se é pesquisado pelo usuário
         try:
             corpus = []
@@ -192,6 +195,7 @@ class Scraper:
         except:
             return {'msg':'Houve um erro ao tentar finalizar a solicitacao! Por favor tente novamente!', 'function':'GetCorpus'},201
     
+    @staticmethod
     def Getdate(content):
         try:
             url = []
