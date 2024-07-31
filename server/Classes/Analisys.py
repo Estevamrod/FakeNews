@@ -5,24 +5,20 @@ from .Scraper import Scraper
 import logging
 
 class Analysis: 
-    tosearch:str
+    def __init__(self):
+        pass
     
-    def __init__(self, tosearch:str):
-        self.newstoSearch = tosearch
-        self.similarity_response = {}
-    
-    def Similarity(self): ## Após "pegar" as informações de um conjunto de notícias, precisamos agora análisar cada titulo e subtitulo para ver qual notícia é mais adequada com o que o usuário pesquisou
+    ## Após "pegar" as informações de um conjunto de notícias, precisamos agora análisar cada titulo e subtitulo para ver qual notícia é mais adequada com o que o usuário pesquisou
+    def Similarity(newstoSearch:str, response:(dict[str, list] | tuple[dict[str, str]])):
         similaridade = []
         rate = []
         most_rated = {}
 
         try:
-            response = Scraper.GetData(self.newstoSearch)
-
             ## Inicio G1
 
             nlp = spacy.load('pt_core_news_lg') ## Para carregar o pacote que usaremos para analisar os titulos e as manchetes
-            s1 = nlp(self.newstoSearch) ## Cria um objeto com as informações estruturais gramaticais e semânticas do texto
+            s1 = nlp(newstoSearch) ## Cria um objeto com as informações estruturais gramaticais e semânticas do texto
 
             for gTitulo in response['g1']:
                 s2 = nlp(gTitulo['dados']['titulo'])
@@ -144,19 +140,14 @@ class Analysis:
                         'site_name':'estadao'
                     }
                     
-            self.similarity_response = most_rated
             return most_rated
         except:
             logging.exception('error')
             return {'msg':'Houve um erro ao tentar finalizar a solicitacao! Por favor tente novamente!', 'function':'GetSimilarity'},201
 
-    def SentimentAnalisys(self): ## Aqui analisaremos a emoção de cada texto, onde utilizaremos Neutro, Positivo e Negativo para avaliar
+    def SentimentAnalisys(response:(dict[str, list] | tuple[dict[str, str]])): ## Aqui analisaremos a emoção de cada texto, onde utilizaremos Neutro, Positivo e Negativo para avaliar
         nltk.download('vader_lexicon')
         try:
-            response = Scraper.GetCorpus(self.similarity_response)
-            if response == []:
-                return []
-
             sentiment = []
             for i in response:
 
@@ -203,4 +194,3 @@ class Analysis:
             logging.exception('error')
         except:
             return {'msg':'Houve um erro ao tentar finalizar a solicitacao! Por favor tente novamente!', 'function':'sentiment'},201
-    

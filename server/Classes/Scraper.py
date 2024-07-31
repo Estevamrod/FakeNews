@@ -32,7 +32,7 @@ class Scraper:
             gp = []
 
             for response in responses:
-                print(f"get_data: {response.status_code}")
+                print(f"data: {response.status_code}")
                 soup = BeautifulSoup(response.content, 'html.parser')
 
                 ##inicio g1 
@@ -111,11 +111,11 @@ class Scraper:
             return {'msg':'Houve um erro ao tentar finalizar a solicitacao! Por favor tente novamente!', 'function':'GetData'},201
 
     @staticmethod
-    def GetCorpus(data): ## Aqui pegamos o corpo da notícia que é mais adequada com o que se é pesquisado pelo usuário
+    def GetCorpus(data:(dict[str, list] | tuple[dict[str, str]])): ## Aqui pegamos o corpo da notícia que é mais adequada com o que se é pesquisado pelo usuário
         try:
             corpus = []
             url = []
-        
+
             for site_origin in data:
                 if data[site_origin]['data'] != []:
                     url.append({'site_origin':site_origin, 'link': data[site_origin]['data']['link_noticia']})
@@ -126,7 +126,7 @@ class Scraper:
             responses = grequests.map(req, size=4)
 
             for response in responses:
-                print(f"title get_corpus: {response.status_code}")
+                print(f"corpus: {response.status_code}")
                 soup = BeautifulSoup(response.content, 'html.parser')
 
                 ## Folha
@@ -164,7 +164,6 @@ class Scraper:
                     reqCorpus = [grequests.get(g1_url['g1_link']) for g1_url in g1link] ## -> Os links do G1 tem um problema para serem feitos requests, pois acaba dando erro e nesse erro está o link correto
                     g1_res = grequests.map(reqCorpus, size=1)
                     for g1_response in g1_res:
-                        print(f"title get_corpus --> g1 / status_code: {g1_response.status_code}")
                         soup = BeautifulSoup(g1_response.content, 'html.parser')
 
                         for g1body in soup.find_all(class_='wall protected-content'):
@@ -196,20 +195,20 @@ class Scraper:
             return {'msg':'Houve um erro ao tentar finalizar a solicitacao! Por favor tente novamente!', 'function':'GetCorpus'},201
     
     @staticmethod
-    def Getdate(content):
+    def Getdate(data:(dict[str, list] | tuple[dict[str, str]])):
         try:
             url = []
             date_corpus= []
 
-            for index in content:
-                if content[index]['data'] !=  []:
-                    url.append({'link':content[index]['data']['link_noticia'], 'site_origin':index})
+            for index in data:
+                if data[index]['data'] !=  []:
+                    url.append({'link':data[index]['data']['link_noticia'], 'site_origin':index})
 
             req = [grequests.get(link['link']) for link in url]
             responses = grequests.map(req, size=4)
 
             for response in responses:
-                print(f"title get_date: {response.status_code}")
+                print(f"date: {response.status_code}")
                 soup = BeautifulSoup(response.content, 'html.parser')
 
                 #Folha de Sao Paulo
@@ -234,7 +233,6 @@ class Scraper:
                     g1format_rq = [grequests.get(link['link']) for link in formatt_link]
                     g1format_res = grequests.map(g1format_rq, size=1)
                     for g1response in g1format_res:
-                        print(f"title get_date g1 : {g1response.status_code}")
                         soup = BeautifulSoup(g1response.content, 'html.parser')
 
                         for g1date in soup.find(class_='content-publication-data__updated'):
@@ -259,4 +257,3 @@ class Scraper:
             logging.exception('error')
         except:
             return {'msg':'Houve um erro ao tentar finalizar a solicitacao! Por favor tente novamente!', 'function':'Getdate'},201
-
