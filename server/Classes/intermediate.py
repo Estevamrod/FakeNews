@@ -1,5 +1,5 @@
-from .Classes.Scraper import Scraper
-from .Classes.Analisys import Analysis
+from .Scraper import Scraper
+from .Analisys import Analysis
 import logging
 
 class Intermediate:

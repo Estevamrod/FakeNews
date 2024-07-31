@@ -1,5 +1,5 @@
 from flask import Flask, request
-from .intermediate import Intermediate
+from .Classes.intermediate import Intermediate
 import logging
 
 app = Flask(__name__)
