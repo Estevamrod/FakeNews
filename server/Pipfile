@@ -9,6 +9,7 @@ nltk = "*"
 grequests = "*"
 beautifulsoup4 = "*"
 spacy = "*"
+pipfile = "*"
 
 [dev-packages]
 
