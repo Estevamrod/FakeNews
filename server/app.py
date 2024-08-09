@@ -1,8 +1,10 @@
 from flask import Flask, request
 from .Classes.intermediate import Intermediate
 import logging
+from flask_cors import CORS
 
 app = Flask(__name__)
+cors = CORS(app, resources={r"/v1/*": {"origins":"*"}})
 
 @app.route('/', methods=['GET'])
 def home():

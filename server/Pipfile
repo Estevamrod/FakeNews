@@ -10,6 +10,7 @@ grequests = "*"
 beautifulsoup4 = "*"
 spacy = "*"
 pipfile = "*"
+flask-cors = "*"
 
 [dev-packages]
 
