@@ -6,13 +6,20 @@ import {useState} from 'react'
 
 function App(){
     const [msg, setMsg] = useState("");
-    const [date_res, setData_res] = useState({});
+    const [date, setDate] = useState({});
+    const [sentiment, setSentiment] = useState({});
+    const [similarity, setSimilarity] = useState({});
+    const [finished, setFinished] = useState(false);
+
     const getdate = async() => {
         try {   
-            const dateReq = await axios.post('http://localhost:5000/v1/date', {
+            const request = await axios.post('http://localhost:5000/v1/news', {
                 'userQuery': msg
             })
-            setData_res(dateReq.data)
+            setDate(request.data.date);
+            setSentiment(request.data.sentiment);
+            setSimilarity(request.data.similarity);
+            setFinished(true)
         } catch (e) {
             console.log(e)
         }
@@ -30,13 +37,13 @@ function App(){
                 <button onClick={getdate}>PESQUISA</button>
             </div>
             <div className="flex justify-center items-center flex-col">
-            <div>
+            <div className={finished ? "" : "hidden"}>
                 <h1 className="text-blue-500 text-[20px] mt-[20px]"><b>Datas e Sentimentos</b></h1>
                 <span className="text-center">Datas de quando foram publicadas notícias parecidas com a manchete pesquisada anteriormente e sentimentos que a notícia transmite</span>
-                <Date date_res={date_res}/>
+                <Date dateRes={date} sentiment={sentiment}/>
                 <h1 className="text-blue-500 text-[20px] mt-[20px]"><b>Similaridade</b></h1>
                 <span className="text-center">Mostra noticias que sejam parecidas com a noticia buscada anteriormente e a média de similaridade entre elas.  </span>
-                <Similarity/>
+                <Similarity similar={similarity}/>
             </div>
             </div>
         </div>
