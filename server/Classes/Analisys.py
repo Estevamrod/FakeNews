@@ -28,7 +28,7 @@ class Analysis:
             i = 0
             for gSubtitulo in response['g1']:
                 s2 = nlp(gSubtitulo['dados']['subtitulo'])
-
+                
                 g1Similar[i]['similaridade']['subtitulo'] = round(s1.similarity(s2)*100, 2)
                 g1Similar[i]['similaridade']['subtitulo_original'] = gSubtitulo['dados']['subtitulo']
                 i += 1

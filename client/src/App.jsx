@@ -19,8 +19,8 @@ function App(){
     }
     return(
         <div>
-             <Navbar/>
-             <h1 className="flex justify-center items-center text-2xl text-blue-500"><b>VERACIDADE</b></h1>
+            <Navbar/>
+            <h1 className="flex justify-center items-center text-2xl text-blue-500"><b>VERACIDADE</b></h1>
             {/* <Textbox/> */}
             <div>
                 <div className="flex justify-center items-start content-center flex-wrap flex-col">
