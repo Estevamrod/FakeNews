@@ -14,7 +14,7 @@ function CardSimilarity({response}) {
         <div className="flex flex-col gap-1">
           <span className="font-bold text-blue-500">Subtítulo</span>
           {/* precisa atualizar aqui */}
-          <span>{response ? response['subtitulo'] : ""}</span>
+          <span className="">{response ? response['subtitulo'] : ""}</span>
         </div>
       </div>
       <div className="flex flex-col justify-center items-center lg:w-1/3">
