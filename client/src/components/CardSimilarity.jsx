@@ -1,10 +1,8 @@
-
-function CardSimilarity({response}) {
+function CardSimilarity({response, imgLogoSimilarity, altSimilarity}) {
   return (
     <div className="flex justify-center items-center flex-col bg-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-[30px] p-5 m-5">
     <div className="flex justify-center items-center flex-col md:flex-row lg:flex-row">
-      <img
-        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQGRa3v94SfiR3CoFiBmhAs_PoXFJeOz3g1qw&s" alt="gazeta" className="w-1/2 lg:w-1/3 rounded-[30px] mb-4 lg:mb-0"/>
+      <img src={imgLogoSimilarity} alt={altSimilarity} className="w-1/2 lg:w-1/3 rounded-[30px] mb-4 lg:mb-0"/>
       <div className="flex flex-col gap-4 text-center lg:w-1/3">
         <div className="flex flex-col gap-1">
           <span className="font-bold text-blue-500">Título</span>
