@@ -75,7 +75,7 @@ function LandingPage(){
                     </div>
                     <div className="lg:flex lg:items-center lg:justify-center lg:mr-[221px] lg:ml-[221px] mb-[20px]">
                         <img src={form_2} alt="Forma 2" className="hidden lg:flex lg:w-[90px]"/>
-                        <p className="m-[25px] lg:text-[23px] text-justify text-[21px] ml-[70px] mr-[70px]">A <span className="text-blue-500 font-black">data</span> associada à emoção <span className="text-blue-500">indica quando uma notícia semelhante à manchete pesquisada foi publicada.</span> Isso ajuda a determinar se o assunto é atual, se é um tema antigo que voltou a ganhar relevância ou se está em alta novamente.</p>
+                        <p className="m-[25px] lg:text-[23px] text-justify text-[21px] ml-[70px] mr-[70px]">A <span className="text-blue-500 font-black">data</span> associada à emoção <span className="text-blue-500">indica quando uma notícia semelhante à manchete pesquisada foi publicada.</span> Isso ajuda a determinar se o assunto é atual ou se é um tema antigo que voltou a ganhar relevância.</p>
                     </div>
                     <div className="lg:flex lg:items-center lg:justify-center lg:mr-[221px] lg:ml-[221px]">
                         <img src={form_3} alt="Forma 3" className="hidden lg:flex lg:w-[90px]"/>
