@@ -8,6 +8,11 @@ import logo from './assets/logo.svg'
 import cesar from './assets/cesar.jpg'
 import estevam from './assets/estevam.jpeg'
 import sergio from './assets/sergio.png'
+import hand from './assets/hand.png'
+import logoFolha from './assets/folhaLogo_date.png'
+import logoGazeta from './assets/gazetaLogo_date.png'
+import logoG1 from './assets/g1Logo_date.png'
+import logoEstadao from './assets/estadaoLogo_date.png'
 
 
 function LandingPage(){
@@ -22,10 +27,10 @@ function LandingPage(){
                         <h1 className="font-black text-[25px] mr-[25px] ml-[25px] mt-[10px] lg:text-[35px] lg:mr-0 lg:ml-0">A <span className="text-blue-500">VERACIDADE DAS NOTÍCIAS</span> NA PALMA DA SUA MÃO</h1>
                         <p className="text-[18px] lg:text-[23px] m-0">Descubra se as notícias que você viu hoje realmente são reais ou apenas uma fake news.</p>
                         <a href="/">
-                            <button className="bg-blue-500 font-black text-white rounded-[40px] mt-[20px] pr-[60px] pl-[60px] p-[20px] text-[17px] lg:mt-[20px] hover:bg-white hover:border-[1px] hover:border-blue-500 hover:text-blue-500 hover:p-[19px] hover:pl-[60px] hover:pr-[60px]">COMEÇAR</button>
+                            <button className="bg-blue-500 font-black text-white rounded-[40px] mt-[20px] pr-[60px] pl-[60px] p-[20px] text-[17px] lg:mt-[20px] hover:bg-white hover:border-[1px] hover:border-blue-500 hover:text-blue-500 hover:p-[19px] hover:pl-[60px] hover:pr-[60px] transition">COMEÇAR</button>
                         </a>
                     </div>
-                    <img src={smartphone} alt="smartphone" className="w-[500px] lg:w-[600px]" />
+                    <img src={hand} alt="smartphone" className="w-[500px] lg:w-[600px] mr-[50px]" />
                 </div>
 
             <div className="border-b border-gray-300 my-8 m-[25px]"></div>
@@ -46,23 +51,23 @@ function LandingPage(){
                 
                 <div className="flex items-center justify-center flex-col lg:flex-row">
                 <div className="flex justify-center items-center flex-col min-w-60 max-w-sm bg-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-[30px] w-10 p-4 m-2">
-                    <img src="https://lh3.googleusercontent.com/proxy/urrkiM40BWHTfqwyUki0JxBAkop4QcKaaA8li9T39HojUjWHanEfu68i--MW3SfPQcERexTuFCVpE5u5IyAJm2mkJWFB6hp16BSNfXwdE6SxSXi0ewLJ5HyZim_Qw4R4kepkcw" alt="G1" className="w-32 rounded-[30px]"/>
-                    <button className="bg-blue-500 font-black text-white p-[10px] pr-[15px] pl-[15px] rounded-full m-[15px] hover:bg-white hover:border-[1px] hover:border-blue-500 hover:text-blue-500 hover:p-[9px] hover:pl-[14px] hover:pr-[14px]">Clique para acessar</button>
+                    <img src={logoFolha} alt="G1" className="w-32 rounded-[30px]"/>
+                    <button className="bg-blue-500 font-black text-white p-[10px] pr-[15px] pl-[15px] rounded-full m-[15px] hover:bg-white hover:border-[1px] hover:border-blue-500 hover:text-blue-500 hover:p-[9px] hover:pl-[14px] hover:pr-[14px] transiton"><a href="https://www.folha.uol.com.br/">Clique para acessar</a></button>
                 </div>
             
                 <div className="flex justify-center items-center flex-col min-w-60 max-w-sm bg-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-[30px] w-10 p-4 m-2">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/9/97/Gp_marca.jpg" alt="G1" className="w-32 rounded-[30px]"/>
-                    <button className="bg-blue-500 font-black text-white p-[10px] pr-[15px] pl-[15px] rounded-full m-[15px] hover:bg-white hover:border-[1px] hover:border-blue-500 hover:text-blue-500 hover:p-[9px] hover:pl-[14px] hover:pr-[14px]">Clique para acessar</button>
+                    <img src={logoGazeta} alt="G1" className="w-32 rounded-[30px]"/>
+                    <button className="bg-blue-500 font-black text-white p-[10px] pr-[15px] pl-[15px] rounded-full m-[15px] hover:bg-white hover:border-[1px] hover:border-blue-500 hover:text-blue-500 hover:p-[9px] hover:pl-[14px] hover:pr-[14px] transition"><a href="https://www.gazetadopovo.com.br/">Clique para acessar</a></button>
                 </div> 
 
                 <div className="flex justify-center items-center flex-col min-w-60 max-w-sm bg-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-[30px] w-10 p-4 m-2">
-                    <img src="https://play-lh.googleusercontent.com/jFIwbIofKnamJhU4l5eOeRvf7Zy-VF7avOsUcTmsji9xtKR_Dc6CT7hR1siQkHHBX5w" alt="G1" className="w-32 rounded-[30px]"/>
-                    <button className="bg-blue-500 font-black text-white p-[10px] pr-[15px] pl-[15px] rounded-full m-[15px] hover:bg-white hover:border-[1px] hover:border-blue-500 hover:text-blue-500 hover:p-[9px] hover:pl-[14px] hover:pr-[14px]">Clique para acessar</button>
+                    <img src={logoG1} alt="G1" className="w-32 rounded-[30px]"/>
+                    <button className="bg-blue-500 font-black text-white p-[10px] pr-[15px] pl-[15px] rounded-full m-[15px] hover:bg-white hover:border-[1px] hover:border-blue-500 hover:text-blue-500 hover:p-[9px] hover:pl-[14px] hover:pr-[14px] transition"><a href="https://g1.globo.com/">Clique para acessar</a></button>
                 </div>
             
                 <div className="flex justify-center items-center flex-col min-w-60 max-w-sm bg-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-[30px] w-10 p-4 m-2">
-                    <img src="https://upload.wikimedia.org/wikipedia/pt/3/32/Estadao_logo.png" alt="G1" className="w-32 rounded-[30px]"/>
-                    <button className="bg-blue-500 font-black text-white p-[10px] pr-[15px] pl-[15px] rounded-full m-[15px] hover:bg-white hover:border-[1px] hover:border-blue-500 hover:text-blue-500 hover:p-[9px] hover:pl-[14px] hover:pr-[14px]">Clique para acessar</button>
+                    <img src={logoEstadao} alt="G1" className="w-32 rounded-[30px]"/>
+                    <button className="bg-blue-500 font-black text-white p-[10px] pr-[15px] pl-[15px] rounded-full m-[15px] hover:bg-white hover:border-[1px] hover:border-blue-500 hover:text-blue-500 hover:p-[9px] hover:pl-[14px] hover:pr-[14px] transition"><a href="https://www.estadao.com.br/">Clique para acessar</a></button>
                 </div>
                 </div>
             </div>

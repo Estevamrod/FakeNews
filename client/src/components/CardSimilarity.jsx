@@ -21,9 +21,9 @@ function CardSimilarity({response, imgLogoSimilarity, altSimilarity}) {
         <span className="text-yellow-500">Porcentagem de similaridade</span>
       </div>
       {/* Os links tambem precisam ser atualizados */}
-      <a href={response ? response['link'] : "#"} target="_blank" className="flex justify-center items-center bg-blue-500 p-2 pr-3 pl-3 rounded-[30px] text-white mt-5 hover:bg-white hover:text-blue-500 hover:border-blue-500 hover:border-[1px] transition duration-300 lg:w-1/3 lg:hidden md:hidden"><b>Acesse aqui</b></a>
+      <a href={response ? response['link'] : "#"} target="_blank" className="flex justify-center items-center bg-blue-500 p-[2px] pr-[3px] pl-[3px] rounded-[30px] text-white mt-5 hover:bg-white hover:text-blue-500 hover:border-blue-500 hover:border-[1px] hover:p-[1px] hover:pr-[2px] hover:pl-[2px] transition duration-300 lg:w-1/3 lg:hidden md:hidden"><b>Acesse aqui</b></a>
     </div>
-    <a href={response ? response['link'] : "#"} target="_blank" className="flex justify-center items-center bg-blue-500 p-2 pr-3 pl-3 rounded-[30px] text-white mt-5 hover:bg-white hover:text-blue-500 hover:border-blue-500 hover:border-[1px] transition duration-300 text-center  lg:w-1/3 hidden lg:block md:block"><b>Acesse aqui</b></a>
+    <button className="bg-blue-500 font-black text-white p-[10px] pr-[100px] pl-[100px] rounded-full m-[15px] hover:bg-white hover:border-[1px] hover:border-blue-500 hover:text-blue-500 hover:p-[9px] hover:pl-[99px] hover:pr-[99px] transition"><a href={response ? response['link'] : "#"} target="_blank" >Clique para acessar</a></button>
     </div>
   );
 }

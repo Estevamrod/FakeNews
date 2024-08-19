@@ -40,8 +40,8 @@ function App(){
                 <div className="flex justify-center items-start content-center flex-wrap flex-col">
                     <span className="mt-[20px] text-blue-500">Manchete</span>
                     <div>
-                        <input type='text' disabled={isLoading ? true : false} onChange={(event) => setMsg(event.target.value)} placeholder="Ex.: Vacina da dengue do butantan" className="rounded-[20px] w-[800px] mt-[10px] p-[15px] border-0 shadow-[0_8px_30px_rgb(0,0,0,0.12)]"/>
-                        <button onClick={getdate} disabled={isLoading ? true : false} className="ml-[30px] font-black text-white bg-blue-500 p-[10px] rounded-full pr-[20px] pl-[20px] hover:bg-slate-50 hover:border-[1px] hover:border-blue-500 hover:text-blue-500 hover:p-[9px] hover:pl-[19px] hover:pr-[19px]">Pesquisar</button>
+                        <input type='text' disabled={isLoading ? true : false} onChange={(event) => setMsg(event.target.value)} placeholder="Ex.: Vacina da Dengue do Instituto Butantan" className="rounded-[20px] w-[800px] mt-[10px] p-[15px] border-0 shadow-[0_8px_30px_rgb(0,0,0,0.12)]"/>
+                        <button onClick={getdate} disabled={isLoading ? true : false} className="ml-[30px] font-black text-white bg-blue-500 p-[10px] rounded-full pr-[20px] pl-[20px] hover:bg-slate-50 hover:border-[1px] hover:border-blue-500 hover:text-blue-500 hover:p-[9px] hover:pl-[19px] hover:pr-[19px] transition">Pesquisar</button>
                     </div>
                 </div>
                 
