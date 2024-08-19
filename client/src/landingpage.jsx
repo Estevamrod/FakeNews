@@ -20,8 +20,10 @@ function LandingPage(){
                     <div className="lg:mr-[50px] flex items-center justify-center flex-col lg:ml-[130px] ml-[50px] mr-[50px]">
                         <img src={logo} alt="Logo Veracidade" className="w-[350px] lg:w-[300px] mb-[20px]"/>
                         <h1 className="font-black text-[25px] mr-[25px] ml-[25px] mt-[10px] lg:text-[35px] lg:mr-0 lg:ml-0">A <span className="text-blue-500">VERACIDADE DAS NOTÍCIAS</span> NA PALMA DA SUA MÃO</h1>
-                        <p className="text-[18px] lg:text-[23px] m-0">Descubra se as notícias que você viu hoje são realmente verdadeiras ou apenas fake news.</p>
-                        <button className="bg-blue-500 font-black text-white rounded-[40px] mt-[20px] pr-[60px] pl-[60px] p-[20px] text-[17px] lg:mt-[20px] hover:bg-white hover:border-[1px] hover:border-blue-500 hover:text-blue-500 hover:p-[19px] hover:pl-[60px] hover:pr-[60px]">COMEÇAR</button>
+                        <p className="text-[18px] lg:text-[23px] m-0">Descubra se as notícias que você viu hoje realmente são reais ou apenas uma fake news.</p>
+                        <a href="/">
+                            <button className="bg-blue-500 font-black text-white rounded-[40px] mt-[20px] pr-[60px] pl-[60px] p-[20px] text-[17px] lg:mt-[20px] hover:bg-white hover:border-[1px] hover:border-blue-500 hover:text-blue-500 hover:p-[19px] hover:pl-[60px] hover:pr-[60px]">COMEÇAR</button>
+                        </a>
                     </div>
                     <img src={smartphone} alt="smartphone" className="w-[500px] lg:w-[600px]" />
                 </div>
