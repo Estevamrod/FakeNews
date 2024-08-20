@@ -1,5 +1,6 @@
 import nltk
-from nltk.sentiment.vader import SentimentIntensityAnalyzer
+##from nltk.sentiment.vader import SentimentIntensityAnalyzer
+from LeIA import SentimentIntensityAnalyzer
 import spacy
 from .Scraper import Scraper
 import logging
@@ -146,7 +147,7 @@ class Analysis:
             return {'msg':'Houve um erro ao tentar finalizar a solicitacao! Por favor tente novamente!', 'function':'GetSimilarity'},201
 
     def SentimentAnalisys(response:(dict[str, list] | tuple[dict[str, str]])): ## Aqui analisaremos a emoção de cada texto, onde utilizaremos Neutro, Positivo e Negativo para avaliar
-        nltk.download('vader_lexicon')
+        ##nltk.download('vader_lexicon')
         try:
             sentiment = []
             for i in response:

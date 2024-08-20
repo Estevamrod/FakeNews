@@ -11,6 +11,7 @@ beautifulsoup4 = "*"
 spacy = "*"
 pipfile = "*"
 flask-cors = "*"
+leia-br = "*"
 
 [dev-packages]
 
