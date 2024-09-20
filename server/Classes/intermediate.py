@@ -22,54 +22,53 @@ class Intermediate:
             
             if isError < 4:
                 return data
+            else:
+                return {}
         except:
             logging.exception('error')
-    def getSimilarity(self):
+    def getSimilarity(self, data:dict[str, list] | tuple[dict[str, str]]):
         try:
-            data = self.getData()
-
             if data == {}:
                 return {'msg':'Ocorreu um erro ao tentar finalizar a tarefa. Por favor tente novamente!', 'func':'similarity'}
 
             similar = self.analisys.Similarity(self.tosearch, data)
             if len(similar) != 0:
                 return similar
+            else:
+                return {}
         except:
             logging.exception('error')
-    def getSentiment(self):
+    def getSentiment(self, data:dict[str, list] | tuple[dict[str, str]]):
         try:
-            corpus = self.getCorpus()
             
-            if corpus == []:
+            if data == {}:
                 return {'msg':'Ocorreu um erro ao tentar finalizar a tarefa. Por favor tente novamente!', 'func':'sentiment'}
 
-            sentiment = self.analisys.SentimentAnalisys(corpus)
+            sentiment = self.analisys.SentimentAnalisys(data)
 
             if sentiment != []:
                 return sentiment
         except:
             logging.exception('error')
-    def getCorpus(self):
+    def getCorpus(self, data:dict[str, list] | tuple[dict[str, str]]):
         try:
-            similarity = self.getSimilarity()
-
-            if similarity == {}:
+            if data == {}:
                 return {'msg':'Ocorreu um erro ao tentar finalizar a tarefa. Por favor tente novamente!', 'func':'corpus'}
 
-            corpus = self.scraper.GetCorpus(similarity)
+            corpus = self.scraper.GetCorpus(data)
 
             if corpus != []:
                 return corpus
+            else:
+                return {}
         except:
             logging.exception('error')
-    def getDate(self):
+    def getDate(self, data:dict[str, list] | tuple[dict[str, str]]):
         try:
-            similarity = self.getSimilarity()
-
-            if similarity == {}:
+            if data == {}:
                 return {'msg':'Ocorreu um erro ao tentar finalizar a tarefa. Por favor tente novamente!', 'func':'getDate'}
 
-            date = self.scraper.Getdate(similarity)
+            date = self.scraper.Getdate(data)
 
             if date != []:
                 return date
