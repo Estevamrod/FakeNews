@@ -2,13 +2,9 @@
 
 Veracidade é um projeto de automatização do processo de busca e verificação de notícia independente da notícia. O projeto utiliza como base e essência a utilização de WebScraping e processos de tratamento de texto e dados.
 
-## 🚀 Começando
-
-precisa ser feito
-
 ### 📋 Pré-requisitos
 
-Antes de tudo, para poder instalar as dependências, principalmente do python, deve ser aberto um ambiente virtual (virtual environment), além deve ter instalado na sua máquina o nodejs. Abaixo segue exemplo de como pode ser feito.
+Antes de tudo, para poder instalar as dependências, principalmente do python, deve ser aberto um ambiente virtual (virtual environment), além disso, deve se ter instalado na sua máquina o nodejs. Abaixo segue exemplo de como pode ser feito.
 
 Windows e Linux
 ```
@@ -48,6 +44,7 @@ Dependencias frontend
 
 ### Iniciar projeto
 Para iniciar os servidores backend e frontend, deve ser verificado primeiro se as dependências estão instaladas, se não estiver, verificar o tópico Instalação.
+
 Backend
 
 ```
@@ -60,7 +57,7 @@ Frontend
     npm run dev
 ```
 
-Para testar os servidores do projeto, basta apenas copiar a url, tanto do backend quanto do frontend, e colar em um navegador que você preferir, o servidor frontend trabalha em localhost com a porta 5197, dessa forma, basta colocar em qualquer navegador __http://localhost:5197__, por exemplo. Com isso, você terá em sua tela um retorno em json com uma mensagem (backend) e a tela principal do projeto (frontend).
+Para testar os servidores do projeto, basta apenas copiar a url, tanto do backend quanto do frontend, e colar em um navegador que você preferir, o servidor frontend trabalha em localhost com a porta 5197, dessa forma, basta colocar em qualquer navegador "http://localhost:5197", por exemplo. Com isso, você terá em sua tela um retorno em json com uma mensagem (backend) e a tela principal do projeto (frontend).
 
 ## 🛠️ Construído com
 
