@@ -63,16 +63,16 @@ Para testar os servidores do projeto, basta apenas copiar a url, tanto do backen
 
 Mencione as ferramentas que você usou para criar seu projeto
 
-* [Python](http://www.dropwizard.io/1.0.2/docs/)
-* [Flask](https://maven.apache.org/)
-* [Spacy](https://rometools.github.io/rome/)
-* [Beautiful Soup](https://rometools.github.io/rome/)
-* [grequests](https://rometools.github.io/rome/)
-* [nltk](https://rometools.github.io/rome/)
-* [React](https://rometools.github.io/rome/)
-* [Vite](https://rometools.github.io/rome/)
-* [Nodejs](https://rometools.github.io/rome/)
-* [pipenv](https://rometools.github.io/rome/)
+* [Python](https://www.python.org/) - Versão até 3.12
+* [Flask](https://flask.palletsprojects.com/en/stable/) - Mais Recente
+* [Spacy](https://spacy.io/) - Mais Recente
+* [Beautiful Soup](https://beautiful-soup-4.readthedocs.io/en/latest/) - Mais Recente
+* [grequests](https://pypi.org/project/grequests/) - Mais Recente
+* [nltk](https://www.nltk.org/) - Mais Recente
+* [React](https://react.dev/) - Mais Recente
+* [Vite](https://vite.dev/) - Mais Recente
+* [Nodejs](https://nodejs.org/en) - Mais Recente
+* [pipenv](https://pipenv.pypa.io/en/latest/) - Mais Recente
 
 ## ✒️ Autores
 
