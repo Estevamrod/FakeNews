@@ -63,16 +63,16 @@ Para testar os servidores do projeto, basta apenas copiar a url, tanto do backen
 
 Mencione as ferramentas que você usou para criar seu projeto
 
-* [Python](http://www.dropwizard.io/1.0.2/docs/) - O framework web usado
-* [Flask](https://maven.apache.org/) - Gerente de Dependência
-* [Spacy](https://rometools.github.io/rome/) - Usada para gerar RSS
-* [Beautiful Soup](https://rometools.github.io/rome/) - Usada para gerar RSS
-* [grequests](https://rometools.github.io/rome/) - Usada para gerar RSS
-* [nltk](https://rometools.github.io/rome/) - Usada para gerar RSS
-* [React](https://rometools.github.io/rome/) - Usada para gerar RSS
-* [Vite](https://rometools.github.io/rome/) - Usada para gerar RSS
-* [Nodejs](https://rometools.github.io/rome/) - Usada para gerar RSS
-* [pipenv](https://rometools.github.io/rome/) - Usada para gerar RSS
+* [Python](http://www.dropwizard.io/1.0.2/docs/)
+* [Flask](https://maven.apache.org/)
+* [Spacy](https://rometools.github.io/rome/)
+* [Beautiful Soup](https://rometools.github.io/rome/)
+* [grequests](https://rometools.github.io/rome/)
+* [nltk](https://rometools.github.io/rome/)
+* [React](https://rometools.github.io/rome/)
+* [Vite](https://rometools.github.io/rome/)
+* [Nodejs](https://rometools.github.io/rome/)
+* [pipenv](https://rometools.github.io/rome/)
 
 ## ✒️ Autores
 
