@@ -17,9 +17,6 @@ class Scraper:
 
             'https://www.gazetadopovo.com.br/busca/?sort=newest&period=last-year&',
             # Gazeta do Povo
-
-            'https://busca.estadao.com.br/?tipo_conteudo=Todos&quando=no-ultimo-ano&',
-            # Estadao   
         ]
 
         try:
@@ -28,7 +25,6 @@ class Scraper:
             responses = grequests.map(req, size=2)
             g1 = []
             folha = []
-            estadao = []
             gp = []
 
             for response in responses:
@@ -36,8 +32,7 @@ class Scraper:
                 soup = BeautifulSoup(response.content, 'html.parser')
 
                 ##inicio g1 
-
-                for gTitulo in soup.find_all(class_='widget--info__title product-color'):
+                for gTitulo in soup.find_all(class_='widget--info__title'):
                     data.append({'site_url':searchEngineStandart[0], 'site_name':'g1', 'dados':{'titulo':gTitulo.get_text().strip()}})
                 g1 = list(filter(lambda x: x['site_name'] == 'g1', data))
                 i = 0
@@ -85,25 +80,10 @@ class Scraper:
                         gp[i]['dados']['link'] = gpLink.get('href')
                         i += 1
 
-                ## Fim Gazeta
-                ## Estadao
-
-                for estadoTitulo in soup.find_all(class_='link-title'):
-                    data.append({'site_url':searchEngineStandart[3], 'site_name':'estadao', 'dados':{'titulo': estadoTitulo.find('h3').get_text().strip(), 'link': estadoTitulo.get('href')}})
-                
-                estadao = list(filter(lambda x: x['site_name'] == 'estadao', data))
-                i = 0
-                for estadoSubtitulo in soup.find_all(class_='link-title'):
-                    for item in estadoSubtitulo.find_all('p'):
-                        if i < len(estadao):
-                            estadao[i]['dados']['subtitulo'] = "Nao possui subtitulo" if item.get_text().strip() == '' else item.get_text().strip()
-                            i += 1
-            
             return {
                 'folha_de_saopaulo':folha,
                 'gazeta_do_povo':   gp,
-                'g1':               g1,
-                'estadao':          estadao,
+                'g1':               g1
             }
         except Exception as e:
             logging.exception('error')

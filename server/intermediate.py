@@ -17,9 +17,10 @@ class Intermediate:
             data = self.scraper.GetData(self.tosearch)
 
             for i in data:
+                print(data)
                 if data[i] == []:
                     isError += 1
-            
+
             if isError < 4:
                 return data
             else:
