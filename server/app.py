@@ -2,8 +2,8 @@ from gevent import monkey
 monkey.patch_all()
 from flask import Flask, request
 # from intermediate import Intermediate
-from .Spider.folhaSaoPaulo import SpiderFolha
-from .Spider.config_patterns import patterns
+from .Spider.gazetaPovo import SpiderGazeta as SpiderFolha
+from .Spider.Config import config_patterns
 import logging
 from flask_cors import CORS
 from flask import jsonify
@@ -33,7 +33,7 @@ def home():
 
 @app.route('/v1/spider_test', methods=['POST'])
 def spider_teste():
-    spider = SpiderFolha(patterns)
+    spider = SpiderFolha(config_patterns.patterns)
     content = spider.request_content(request.json['query'])
 
     return jsonify([asdict(n) for n in content]), 200

@@ -13,6 +13,7 @@ flask-cors = "*"
 leia-br = "*"
 pipfile = "*"
 requests = "*"
+python-dotenv = "*"
 
 [dev-packages]
 

@@ -1,12 +1,4 @@
 patterns = {
-  "g1": {
-    "divPai": "IFHyqb DeXSAc",
-    "titulo": "JtKRv",
-    "link": "JtKRv",
-    "dataPublicacao": "hvbAAd",
-    "link_busca": "https://news.google.com/search?q="
-  },
-
   "folha": {
     "divPai": "c-headline__content",
     "titulo": "c-headline__title",
@@ -25,10 +17,11 @@ patterns = {
     "link_busca": "https://www.gazetadopovo.com.br/busca/?sort=newest&period=last-year&q="
   },
 
-  "estadao": {
-    "titulo": "div.link-title",
-    "subtitulo": "div.link-title",
-    "link": "div.link-title",
-    "link_busca": "https://busca.estadao.com.br/?tipo_conteudo=Todos&quando=no-ultimo-ano&q="
-  }
+  "news_google": {
+    "divPai": "IFHyqb DeXSAc",
+    "titulo": "JtKRv",
+    "link": "JtKRv",
+    "dataPublicacao": "hvbAAd",
+    "link_busca": "https://news.google.com/search?q="
+}
 }

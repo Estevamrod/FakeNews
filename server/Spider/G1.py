@@ -5,7 +5,7 @@ from ..items import Noticias
 
 class SpiderG1:
    def __init__(self, source):
-      self.source = source['g1']
+      self.source = source['news_google']
 
    def fetch(self, querycontent:str):
       req = requests.get(self.source['link_busca'] + querycontent + " site:g1.globo.com when:1y&hl=pt-BR&gl=BR&ceid=BR%3Apt-419")
