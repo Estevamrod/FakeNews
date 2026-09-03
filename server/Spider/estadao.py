@@ -36,7 +36,7 @@ class SpiderEstadao:
                     subtitulo=None,
                     link=link,
                     data_publicacao=dataPublicacao,
-                    fonte="Estadao"
+                    fonte="estadao"
                 )
             )
             

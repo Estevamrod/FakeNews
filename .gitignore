@@ -1,3 +1,4 @@
 server/Pipfile.lock
 pyenv
 __pycache__
+.python-version

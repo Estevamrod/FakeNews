@@ -37,7 +37,7 @@ class SpiderG1:
                subtitulo=None,
                link=link, 
                data_publicacao=dataPublicacao,
-               fonte="G1"
+               fonte="g1"
             )
          )
       return Resultado

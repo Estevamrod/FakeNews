@@ -8,4 +8,3 @@ class Noticias:
   link: list[str]
   fonte: str
   data_publicacao: Optional[str] = None
-  conteudo: Optional[str] = None

@@ -30,10 +30,7 @@ class SpiderGazeta:
     
     def request_content(self, query:str):
         soup = self.fetch(query)
-        noticias = soup.find_all(class_=self.source['gazeta']['divPai'])
-
-        if not noticias:
-            noticias = soup.find_all(class_=f"{self.source['news_google']['divPai']}")
+        noticias = soup.find_all(class_=self.source['gazeta']['divPai']) if noticias else soup.find_all(class_=f"{self.source['news_google']['divPai']}")
 
         temp = []
         for noticia in noticias:
@@ -48,7 +45,7 @@ class SpiderGazeta:
                     subtitulo=subtitulo,
                     data_publicacao=dataPubli,
                     link=link,
-                    fonte="Gazeta"
+                    fonte="gazeta"
                 )
             )
         return temp

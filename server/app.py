@@ -1,10 +1,8 @@
 from gevent import monkey
 monkey.patch_all()
 from flask import Flask, request
-# from intermediate import Intermediate
-from .Spider.gazetaPovo import SpiderGazeta as SpiderFolha
-from .Spider.Config import config_patterns
-import logging
+from .Spider import SpiderG1, SpiderFolha, SpiderGazeta, SpiderEstadao, patterns
+from .Pipeline import limpeza
 from flask_cors import CORS
 from flask import jsonify
 from dataclasses import asdict
@@ -16,27 +14,12 @@ cors = CORS(app, resources={r"/v1/*": {"origins":"*"}})
 def home():
     return {'msg':'Welcome 😁', 'origin':'python'},200
 
-# @app.route('/v1/data', methods=['POST'])
-# def getdata():
-#     if request.json['userQuery'] == "":
-#         return {'msg':'Não foi possível finalizar a execução, por favor tente novamente!'},201
-    
-#     try:
-#         data = Intermediate(request.json['userQuery']).getData()
+@app.route('/v1/pipeline_teste', methods=['POST'])
+def pipeline_teste():
+    noticias = []
+    noticias += SpiderFolha(patterns).request_content(request.json['query'])
 
-#         if data != {}:
-#             return data,200
-#         else: 
-#             return {'msg':'Ocorreu um erro. Por favor tente novamente mais tarde!'}
-#     except:
-#         logging.exception('error')
-
-@app.route('/v1/spider_test', methods=['POST'])
-def spider_teste():
-    spider = SpiderFolha(config_patterns.patterns)
-    content = spider.request_content(request.json['query'])
-
-    return jsonify([asdict(n) for n in content]), 200
+    return jsonify([asdict(n) for n in noticias]), 200
 
 # @app.route('/v1/similarity', methods=['POST'])
 # def v1_similar():

@@ -4,16 +4,16 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-flask = "*"
 nltk = "*"
 grequests = "*"
 beautifulsoup4 = "*"
 spacy = "*"
 flask-cors = "*"
 leia-br = "*"
-pipfile = "*"
 requests = "*"
 python-dotenv = "*"
+flask = "*"
+pipfile = "*"
 
 [dev-packages]
 
