@@ -2,12 +2,13 @@ from gevent import monkey
 monkey.patch_all()
 from flask import Flask, request
 from .Spider import SpiderG1, SpiderFolha, SpiderGazeta, SpiderEstadao, patterns
-from .Pipeline import limpeza
+from .Pipeline.limpeza import Limpeza
 from flask_cors import CORS
 from flask import jsonify
 from dataclasses import asdict
 
 app = Flask(__name__)
+
 cors = CORS(app, resources={r"/v1/*": {"origins":"*"}})
 
 @app.route('/', methods=['GET'])
@@ -17,9 +18,15 @@ def home():
 @app.route('/v1/pipeline_teste', methods=['POST'])
 def pipeline_teste():
     noticias = []
-    noticias += SpiderFolha(patterns).request_content(request.json['query'])
+    query = request.json['query']
+    noticias += SpiderFolha(patterns).request_content(query)
+    noticias += SpiderEstadao(patterns).request_content(query)
+    noticias += SpiderG1(patterns).request_content(query)
+    noticias += SpiderGazeta(patterns).request_content(query)
 
-    return jsonify([asdict(n) for n in noticias]), 200
+    noticias_limpas = Limpeza.DescarteNoticias(Limpeza,noticias)
+
+    return noticias_limpas,200
 
 # @app.route('/v1/similarity', methods=['POST'])
 # def v1_similar():

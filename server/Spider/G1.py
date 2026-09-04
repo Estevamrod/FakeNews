@@ -1,3 +1,4 @@
+import json
 import requests
 from bs4 import BeautifulSoup
 from ..items import Noticias
@@ -13,10 +14,11 @@ class SpiderG1:
       return BeautifulSoup(req.content, 'html.parser')
 
    def parse_titulo(self, noticia):
-      return [titulo.get('aria-label').split(' - ')[0] for titulo in noticia.find_all(class_=f"{self.source['titulo']}")]
+      for titulo in noticia.find(class_=f"{self.source['titulo']}"):
+         return titulo.get_text()
 
    def parse_link(self, noticia):
-      return [f"https://news.google.com{link.get('href')}" for link in noticia.find_all(class_=self.source['link'])]
+      return [link.get('href') for link in noticia.find_all(class_=self.source['link'])]
 
    def parse_dataPubli(self, noticia):
       return [data.get_text() for data in noticia.find_all(class_=self.source['dataPublicacao'])]

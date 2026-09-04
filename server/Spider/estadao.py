@@ -9,13 +9,15 @@ class SpiderEstadao:
     def fetch(self, query:str):
         req = requests.get(self.source['link_busca'] + query + " site:estadao.com.br when:1y&hl=pt-BR&gl=BR&ceid=BR%3Apt-419")
         req.status_code
-        return BeautifulSoup(req.content, 'html.parser')
+        return BeautifulSoup(req.text, 'html.parser')
     
     def parse_titulo(self, noticia):
-        return [titulo.get('aria-label').split('-')[0] for titulo in noticia.find_all(class_=f"{self.source['titulo']}")]
+        for titulo in noticia.find_all(class_=f"{self.source['titulo']}"):
+            return titulo.get_text()
 
     def parse_link(self, noticia):
-        return [link.get('href') for link in noticia.find_all(class_=f"{self.source['link']}")]
+        for link in noticia.find_all(class_=f"{self.source['link']}"):
+            return link.get('href')
 
     def parse_dataPubli(self, noticia):
         return [data.get_text().strip() for data in noticia.find_all(class_=f"{self.source['dataPublicacao']}")]

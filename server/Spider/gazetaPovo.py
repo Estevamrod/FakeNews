@@ -17,23 +17,45 @@ class SpiderGazeta:
         return BeautifulSoup(req.content, 'html.parser')
 
     def parse_titulo(self, noticia):
-        return [titulo.get_text().strip() for titulo in noticia.find_all(class_=f"{self.source['gazeta']['titulo']}")] if not self.backupSource else [titulo.get('aria-label').split(' - ')[0] for titulo in noticia.find_all(class_=f"{self.source['news_google']['titulo']}")]
+        if not self.backupSource:
+            for titulo in noticia.find(class_=f"{self.source['gazeta']['titulo']}"):
+                return titulo.get_text().strip()
+        else:
+            for titulo in noticia.find(class_=f"{self.source['news_google']['titulo']}"):
+                return titulo.get('aria-label').split(' - ')[0]
 
     def parse_subtitulo(self, noticia):
-        return [subtitulo.get_text().strip() for subtitulo in noticia.find_all(class_=f"{self.source['gazeta']['subtitulo']}")] if not self.backupSource else None
+        if self.backupSource:
+            return None
+
+        for subtitulo in noticia.find(class_=f"{self.source['gazeta']['subtitulo']}"):
+            return subtitulo.get_text().strip()
 
     def parse_dataPublicacao(self, noticia):
-        return [data.get_text() for data in noticia.find_all(class_=f"{self.source['gazeta']['dataPublicacao']}")]  if not self.backupSource else [data.get_text() for data in noticia.find_all(class_=f"{self.source['news_google']['dataPublicacao']}")]
+        if not self.backupSource:
+            for data in noticia.find(class_=f"{self.source['gazeta']['dataPublicacao']}"):
+                return data.get_text()
+        else: 
+            for data in noticia.find(class_=f"{self.source['news_google']['dataPublicacao']}"):
+                return data.get_text()
 
     def parse_link(self, noticia):
-        return [link.get('href') for link in noticia.find_all(class_=f"{self.source['gazeta']['link']}")] if not self.backupSource else [link.get('href') for link in noticia.find_all(class_=f"{self.source['news_google']['link']}")]
+        if not self.backupSource:
+            for link in noticia.find(class_=f"{self.source['gazeta']['link']}"):
+                return link.get('href')
+        else:
+            for link in noticia.find(class_=f"{self.source['news_google']['link']}"):
+                return link.get('href')
     
     def request_content(self, query:str):
         soup = self.fetch(query)
-        noticias = soup.find_all(class_=self.source['gazeta']['divPai']) if noticias else soup.find_all(class_=f"{self.source['news_google']['divPai']}")
+        noticias_card = soup.find_all(class_=self.source['gazeta']['divPai']) 
+
+        if not noticias_card:
+            soup.find_all(class_=f"{self.source['news_google']['divPai']}")
 
         temp = []
-        for noticia in noticias:
+        for noticia in noticias_card:
             titulo = self.parse_titulo(noticia=noticia)
             subtitulo = self.parse_subtitulo(noticia=noticia)
             dataPubli = self.parse_dataPublicacao(noticia=noticia)
